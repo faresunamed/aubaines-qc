@@ -1,0 +1,405 @@
+[
+  {
+    "establishment": {
+      "slug": "iga",
+      "name": "IGA",
+      "kind": "epicerie",
+      "website": "https://iga.net"
+    },
+    "urls": [
+      "https://iga.net/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "metro",
+      "name": "Metro",
+      "kind": "epicerie",
+      "website": "https://metro.ca"
+    },
+    "urls": [
+      "https://metro.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "maxi",
+      "name": "Maxi",
+      "kind": "epicerie",
+      "website": "https://maxi.ca"
+    },
+    "urls": [
+      "https://maxi.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "provigo",
+      "name": "Provigo",
+      "kind": "epicerie",
+      "website": "https://provigo.ca"
+    },
+    "urls": [
+      "https://provigo.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "super-c",
+      "name": "Super C",
+      "kind": "epicerie",
+      "website": "https://superc.ca"
+    },
+    "urls": [
+      "https://superc.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "walmart-canada",
+      "name": "Walmart Canada",
+      "kind": "epicerie",
+      "website": "https://walmart.ca"
+    },
+    "urls": [
+      "https://walmart.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "costco",
+      "name": "Costco",
+      "kind": "epicerie",
+      "website": "https://costco.ca"
+    },
+    "urls": [
+      "https://costco.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "adonis",
+      "name": "Adonis",
+      "kind": "epicerie",
+      "website": "https://marchesadonis.com"
+    },
+    "urls": [
+      "https://marchesadonis.com/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "marche-tradition",
+      "name": "Marché Tradition",
+      "kind": "epicerie",
+      "website": "https://marchetradition.com"
+    },
+    "urls": [
+      "https://marchetradition.com/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "avril-supermarche-sante",
+      "name": "Avril Supermarché Santé",
+      "kind": "epicerie",
+      "website": "https://avril.ca"
+    },
+    "urls": [
+      "https://avril.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "jean-coutu",
+      "name": "Jean Coutu",
+      "kind": "pharmacie",
+      "website": "https://jeancoutu.com"
+    },
+    "urls": [
+      "https://jeancoutu.com/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "familiprix",
+      "name": "Familiprix",
+      "kind": "pharmacie",
+      "website": "https://familiprix.com"
+    },
+    "urls": [
+      "https://familiprix.com/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "pharmaprix",
+      "name": "Pharmaprix",
+      "kind": "pharmacie",
+      "website": "https://pharmaprix.ca"
+    },
+    "urls": [
+      "https://pharmaprix.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "brunet",
+      "name": "Brunet",
+      "kind": "pharmacie",
+      "website": "https://brunet.ca"
+    },
+    "urls": [
+      "https://brunet.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "uniprix",
+      "name": "Uniprix",
+      "kind": "pharmacie",
+      "website": "https://uniprix.com"
+    },
+    "urls": [
+      "https://uniprix.com/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "canadian-tire",
+      "name": "Canadian Tire",
+      "kind": "magasin",
+      "website": "https://canadiantire.ca"
+    },
+    "urls": [
+      "https://canadiantire.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "dollarama",
+      "name": "Dollarama",
+      "kind": "magasin",
+      "website": "https://dollarama.com"
+    },
+    "urls": [
+      "https://dollarama.com/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "leon-s",
+      "name": "Leon's",
+      "kind": "magasin",
+      "website": "https://leons.ca"
+    },
+    "urls": [
+      "https://leons.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "brick",
+      "name": "Brick",
+      "kind": "magasin",
+      "website": "https://labrique.com"
+    },
+    "urls": [
+      "https://labrique.com/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "buropro",
+      "name": "BuroPro",
+      "kind": "magasin",
+      "website": "https://buropro.ca"
+    },
+    "urls": [
+      "https://buropro.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "bureau-en-gros",
+      "name": "Bureau en Gros",
+      "kind": "magasin",
+      "website": "https://staples.ca"
+    },
+    "urls": [
+      "https://staples.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "pet-valu",
+      "name": "Pet Valu",
+      "kind": "magasin",
+      "website": "https://petvalu.ca"
+    },
+    "urls": [
+      "https://petvalu.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "sports-experts",
+      "name": "Sports Experts",
+      "kind": "magasin",
+      "website": "https://sportsexperts.ca"
+    },
+    "urls": [
+      "https://sportsexperts.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "archambault",
+      "name": "Archambault",
+      "kind": "magasin",
+      "website": "https://archambault.ca"
+    },
+    "urls": [
+      "https://archambault.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "best-buy",
+      "name": "Best Buy",
+      "kind": "electronique",
+      "website": "https://bestbuy.ca"
+    },
+    "urls": [
+      "https://bestbuy.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "rona",
+      "name": "Rona",
+      "kind": "renovation",
+      "website": "https://rona.ca"
+    },
+    "urls": [
+      "https://rona.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "reno-depot",
+      "name": "Réno-Dépôt",
+      "kind": "renovation",
+      "website": "https://renodepot.com"
+    },
+    "urls": [
+      "https://renodepot.com/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "home-depot",
+      "name": "Home Depot",
+      "kind": "renovation",
+      "website": "https://homedepot.ca"
+    },
+    "urls": [
+      "https://homedepot.ca/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "bmr",
+      "name": "BMR",
+      "kind": "renovation",
+      "website": "https://bmr.co"
+    },
+    "urls": [
+      "https://bmr.co/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "patrick-morin",
+      "name": "Patrick Morin",
+      "kind": "renovation",
+      "website": "https://patrickmorin.com"
+    },
+    "urls": [
+      "https://patrickmorin.com/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  },
+  {
+    "establishment": {
+      "slug": "saq",
+      "name": "SAQ",
+      "kind": "autre",
+      "website": "https://saq.com"
+    },
+    "urls": [
+      "https://saq.com/"
+    ],
+    "authorized": false,
+    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+  }
+]

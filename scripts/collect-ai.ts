@@ -31,7 +31,10 @@ if (flag("html")) {
 
 const raw = process.env.AI_SOURCES_JSON ?? (fs.existsSync("ai-sources.config.json") ? fs.readFileSync("ai-sources.config.json", "utf8") : "");
 if (!raw) { console.log("Aucune source. Créez ai-sources.config.json (voir ai-sources.config.example.json)."); process.exit(0); }
-const sources: AiSourceConfig[] = JSON.parse(raw);
+const all: AiSourceConfig[] = JSON.parse(raw);
+const sources = all.filter((s) => s.authorized === true);
+console.log(`${sources.length} source(s) autorisée(s) sur ${all.length} (les autres sont ignorées).`);
+if (!sources.length) process.exit(0);
 
 if (!dry) await ensureCategories();
 let failures = 0;
