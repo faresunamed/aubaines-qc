@@ -13,8 +13,26 @@ import type { PoolConfig } from "pg";
 
 const LOCAL_DEFAULT = "postgres://postgres:postgres@localhost:5433/aubaines";
 
+/**
+ * Adresse configurée dans l'environnement, ou undefined.
+ * Ordre : DATABASE_URL, POSTGRES_URL, une variable se terminant par _POSTGRES_URL
+ * (intégration Vercel avec préfixe personnalisé), puis toute variable dont la valeur
+ * est une adresse postgres:// (hors NON_POOLING / PRISMA).
+ */
+export function configuredDbUrl(): string | undefined {
+  const direct = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+  if (direct) return direct;
+  const keys = Object.keys(process.env).filter((k) => process.env[k]);
+  const prefixed = keys.find((k) => /_POSTGRES_URL$/.test(k));
+  if (prefixed) return process.env[prefixed];
+  const any = keys.find(
+    (k) => /^postgres(ql)?:\/\//.test(process.env[k]!) && !/NON_POOLING|PRISMA/.test(k),
+  );
+  return any ? process.env[any] : undefined;
+}
+
 export function pgConfig(): PoolConfig {
-  const raw = process.env.DATABASE_URL || process.env.POSTGRES_URL || LOCAL_DEFAULT;
+  const raw = configuredDbUrl() || LOCAL_DEFAULT;
 
   let connectionString = raw;
   let host = "localhost";
