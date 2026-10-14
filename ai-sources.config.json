@@ -9,7 +9,7 @@
     "urls": [
       "https://iga.net/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -22,7 +22,7 @@
     "urls": [
       "https://metro.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -35,7 +35,7 @@
     "urls": [
       "https://maxi.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -48,7 +48,7 @@
     "urls": [
       "https://provigo.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -61,7 +61,7 @@
     "urls": [
       "https://superc.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -74,7 +74,7 @@
     "urls": [
       "https://walmart.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -87,7 +87,7 @@
     "urls": [
       "https://costco.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -100,7 +100,7 @@
     "urls": [
       "https://marchesadonis.com/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -113,7 +113,7 @@
     "urls": [
       "https://marchetradition.com/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -126,7 +126,7 @@
     "urls": [
       "https://avril.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -139,7 +139,7 @@
     "urls": [
       "https://jeancoutu.com/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -152,7 +152,7 @@
     "urls": [
       "https://familiprix.com/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -165,7 +165,7 @@
     "urls": [
       "https://pharmaprix.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -178,7 +178,7 @@
     "urls": [
       "https://brunet.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -191,7 +191,7 @@
     "urls": [
       "https://uniprix.com/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -204,7 +204,7 @@
     "urls": [
       "https://canadiantire.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -217,7 +217,7 @@
     "urls": [
       "https://dollarama.com/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -230,7 +230,7 @@
     "urls": [
       "https://leons.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -243,7 +243,7 @@
     "urls": [
       "https://labrique.com/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -256,7 +256,7 @@
     "urls": [
       "https://buropro.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -269,7 +269,7 @@
     "urls": [
       "https://staples.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -282,7 +282,7 @@
     "urls": [
       "https://petvalu.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -295,7 +295,7 @@
     "urls": [
       "https://sportsexperts.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -308,7 +308,7 @@
     "urls": [
       "https://archambault.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -321,7 +321,7 @@
     "urls": [
       "https://bestbuy.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -334,7 +334,7 @@
     "urls": [
       "https://rona.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -347,7 +347,7 @@
     "urls": [
       "https://renodepot.com/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -360,7 +360,7 @@
     "urls": [
       "https://homedepot.ca/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -373,7 +373,7 @@
     "urls": [
       "https://bmr.co/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -386,7 +386,7 @@
     "urls": [
       "https://patrickmorin.com/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   },
   {
@@ -399,7 +399,7 @@
     "urls": [
       "https://saq.com/"
     ],
-    "authorized": false,
+    "authorized": true,
     "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
   }
 ]
