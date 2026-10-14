@@ -12,6 +12,7 @@ Stack : Next.js 15 (App Router) · Postgres · sessions JWT en cookie httpOnly �
 | Comptes | Inscription avec consentement, **confirmation du courriel**, **mot de passe oublié**, déconnexion de tous les appareils après réinitialisation, limitation des tentatives |
 | Commerçants | Demande d'accès → approbation par un admin → publication/modification/suppression d'offres, **import CSV** (500 lignes), classification automatique |
 | Administration | Statistiques, approbation/refus des commerçants, modération des offres |
+| Agent IA | Extraction quotidienne des offres depuis des pages de circulaires **autorisées** → file « à réviser » dans `/admin` → publication manuelle |
 | Croissance | Pages publiques par commerce et par catégorie, `sitemap.xml`, `robots.txt`, balises sociales, application installable (manifest + icônes) |
 | Légal | Ébauches des conditions d'utilisation et de la politique de confidentialité (Loi 25) — **à faire valider** |
 
@@ -88,6 +89,17 @@ Derrière un proxy/CDN, assurez-vous que l'en-tête `x-forwarded-for` est fourni
 - Les promotions de `db:seed` sont **fictives** (bandeau « démonstration » affiché tant qu'il en reste).
 - Voies recommandées pour des données réelles : **portail commerçant** (déjà construit), flux/API officiels via `collectors.config.json` (voir `collectors.config.example.json`), ou collecteur sur mesure dans `collectors/`.
 - **Aucun scraper de commerçant n'est inclus.** Vérifiez les conditions d'utilisation et le `robots.txt` d'un site avant toute collecte automatisée ; les circulaires sont protégées par le droit d'auteur.
+
+## Agent IA d'extraction (quotidien)
+
+Principe : une tâche planifiée lit des pages de circulaires, Claude en extrait des offres structurées, un validateur écarte tout ce qui n'est pas **vérifiable dans le texte de la page** (titre et prix) ou qui est expiré, puis les offres arrivent en statut **à réviser**. Rien n'est public tant qu'un admin n'a pas cliqué *Publier* dans `/admin` (« Rejeter » est mémorisé : l'offre n'est pas reproposée).
+
+1. Mettre à jour la base : relancez `db/schema.sql` dans le SQL Editor Supabase (ajoute `promotions.status`).
+2. Copiez `ai-sources.config.example.json` → `ai-sources.config.json`, ajoutez vos commerces et pages, et mettez `"authorized": true` **seulement** si vous avez le droit d'utiliser ces pages (entente, conditions d'utilisation). Le robot respecte aussi `robots.txt` et n'accepte que https.
+3. Essai sans rien écrire : `ANTHROPIC_API_KEY=… npm run collect:ai -- --dry`, ou sur une page enregistrée : `npm run collect:ai -- --html page.html --name "Nom" --slug nom`.
+4. Planification : le workflow `.github/workflows/daily-collect.yml` tourne chaque jour. Dans GitHub → Settings → Secrets, ajoutez `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `ANTHROPIC_API_KEY` et `AI_SOURCES_JSON` (le contenu du fichier de sources).
+
+Limites : les pages qui s'affichent uniquement par JavaScript (circulaires interactives) ressortent vides ; un appel à l'API Anthropic est facturé à l'usage ; l'extraction reste une aide, d'où la revue humaine. Test sans clé : `npm run test:extract`.
 
 ## Classification
 

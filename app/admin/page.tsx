@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/auth";
 import { query } from "@/lib/db";
-import { approveMerchant, deletePromotion, rejectMerchant } from "./actions";
+import { approveMerchant, deletePromotion, rejectMerchant, reviewEstablishment, reviewPromotion } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Administration — Aubaines QC", robots: { index: false } };
@@ -18,7 +18,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ o
   const [stats] = await query<Record<string, number>>(`
     SELECT (SELECT count(*) FROM users)::int AS users,
            (SELECT count(*) FROM users WHERE email_verified_at IS NOT NULL)::int AS verified,
-           (SELECT count(*) FROM promotions WHERE valid_to IS NULL OR valid_to >= CURRENT_DATE)::int AS active,
+           (SELECT count(*) FROM promotions WHERE status='published' AND (valid_to IS NULL OR valid_to >= CURRENT_DATE))::int AS active,
            (SELECT count(*) FROM promotions WHERE source='merchant')::int AS merchant_promos,
            (SELECT count(*) FROM merchant_profiles WHERE status='approved')::int AS merchants,
            (SELECT count(*) FROM alerts)::int AS alerts,
@@ -29,6 +29,17 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ o
      FROM merchant_profiles m JOIN users u ON u.id = m.user_id
      WHERE m.status = 'pending' ORDER BY m.created_at`);
   const establishments = await query<{ id: number; name: string }>("SELECT id, name FROM establishments ORDER BY name");
+  const review = await query<any>(
+    `SELECT p.id, p.title, p.brand, p.price, p.regular_price, p.discount_percent, p.unit, p.source_url,
+            to_char(p.valid_to,'YYYY-MM-DD') AS valid_to, e.id AS est_id, e.name AS est, c.name AS category
+     FROM promotions p JOIN establishments e ON e.id = p.establishment_id JOIN categories c ON c.id = p.category_id
+     WHERE p.status = 'pending' ORDER BY e.name, p.title LIMIT 300`);
+  const reviewByEst = new Map<number, { name: string; rows: any[] }>();
+  for (const r of review) {
+    if (!reviewByEst.has(r.est_id)) reviewByEst.set(r.est_id, { name: r.est, rows: [] });
+    reviewByEst.get(r.est_id)!.rows.push(r);
+  }
+  const money = (v: string | null) => (v == null ? "" : `${Number(v).toFixed(2).replace(".", ",")} $`);
   const recent = await query<any>(
     `SELECT p.id, p.title, e.name AS est, p.source FROM promotions p JOIN establishments e ON e.id = p.establishment_id
      WHERE p.source = 'merchant' ORDER BY p.created_at DESC LIMIT 20`);
@@ -47,6 +58,33 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ o
           <div key={String(k)} className="stat"><strong>{Number(v).toLocaleString("fr-CA")}</strong><span>{k}</span></div>
         ))}
       </div>
+
+      <h2>Offres à réviser — extraction IA ({review.length})</h2>
+      {review.length === 0 && <p className="empty">Rien à réviser.</p>}
+      {[...reviewByEst].map(([estId, g]) => (
+        <div key={estId} className="panel">
+          <p><strong>{g.name}</strong> — {g.rows.length} offre(s). Comparez avec la source avant de publier.</p>
+          <form action={reviewEstablishment} className="inline-form">
+            <input type="hidden" name="establishmentId" value={estId} />
+            <button name="decision" value="publish" className="btn btn-primary btn-sm">Tout publier</button>
+            <button name="decision" value="reject" className="linklike danger">Tout rejeter</button>
+          </form>
+          <table className="table"><tbody>
+            {g.rows.map((p: any) => (
+              <tr key={p.id}>
+                <td>{p.title}{p.brand ? ` (${p.brand})` : ""}<br /><span className="muted">{p.category}{p.unit ? ` · ${p.unit}` : ""}{p.valid_to ? ` · jusqu'au ${p.valid_to}` : ""}</span></td>
+                <td>{money(p.price)}{p.regular_price ? <span className="muted"> (rég. {money(p.regular_price)})</span> : null}{p.discount_percent ? ` −${p.discount_percent} %` : ""}</td>
+                <td>{p.source_url && <a href={p.source_url} target="_blank" rel="noopener noreferrer nofollow">source</a>}</td>
+                <td className="actions">
+                  <form action={reviewPromotion}><input type="hidden" name="id" value={p.id} />
+                    <button name="decision" value="publish" className="linklike">Publier</button>{" "}
+                    <button name="decision" value="reject" className="linklike danger">Rejeter</button></form>
+                </td>
+              </tr>
+            ))}
+          </tbody></table>
+        </div>
+      ))}
 
       <h2>Demandes commerçant ({pending.length})</h2>
       {pending.length === 0 && <p className="empty">Aucune demande en attente.</p>}

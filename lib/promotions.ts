@@ -40,7 +40,7 @@ const ORDER: Record<string, string> = {
 };
 
 export async function searchPromotions(f: Filters, userId?: number) {
-  const where: string[] = ["(p.valid_to IS NULL OR p.valid_to >= CURRENT_DATE)"];
+  const where: string[] = ["p.status = 'published'", "(p.valid_to IS NULL OR p.valid_to >= CURRENT_DATE)"];
   const params: unknown[] = [];
   const add = (v: unknown) => (params.push(v), `$${params.length}`);
 
@@ -91,7 +91,7 @@ export async function getFacets() {
   }>(
     `SELECT c.slug, c.name, c.group_name, count(p.id)::int AS n
      FROM categories c
-     LEFT JOIN promotions p ON p.category_id = c.id
+     LEFT JOIN promotions p ON p.category_id = c.id AND p.status = 'published'
        AND (p.valid_to IS NULL OR p.valid_to >= CURRENT_DATE)
      GROUP BY c.id ORDER BY c.sort`,
   );
@@ -100,7 +100,7 @@ export async function getFacets() {
   }>(
     `SELECT e.slug, e.name, e.kind, count(p.id)::int AS n
      FROM establishments e
-     LEFT JOIN promotions p ON p.establishment_id = e.id
+     LEFT JOIN promotions p ON p.establishment_id = e.id AND p.status = 'published'
        AND (p.valid_to IS NULL OR p.valid_to >= CURRENT_DATE)
      GROUP BY e.id ORDER BY e.name`,
   );
@@ -118,7 +118,7 @@ export async function getFavorites(userId: number) {
      JOIN promotions p ON p.id = f.promotion_id
      JOIN establishments e ON e.id = p.establishment_id
      JOIN categories c ON c.id = p.category_id
-     WHERE f.user_id = $1
+     WHERE f.user_id = $1 AND p.status = 'published'
      ORDER BY f.created_at DESC`,
     [userId],
   );
@@ -126,7 +126,7 @@ export async function getFavorites(userId: number) {
 
 export async function hasDemoData() {
   const [r] = await query<{ demo: boolean }>(
-    `SELECT EXISTS (SELECT 1 FROM promotions WHERE is_demo) AS demo`,
+    `SELECT EXISTS (SELECT 1 FROM promotions WHERE is_demo AND status = 'published') AS demo`,
   );
   return r.demo;
 }

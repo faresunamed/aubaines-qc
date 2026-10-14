@@ -3,6 +3,7 @@
 // ATTENTION : écrit dans la base (comptes e2e-*@example.com) — refuse de tourner hors localhost.
 import { spawnSync } from "node:child_process";
 import { closeDb, query } from "../lib/db";
+import { ensureCategories, ingest } from "../lib/ingest";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3100";
 const dbUrl = process.env.DATABASE_URL ?? "postgres://postgres:postgres@localhost:5433/aubaines";
@@ -228,6 +229,35 @@ for (let i = 0; i < 12; i++) {
   if (x.text.includes("Trop de tentatives")) { blocked = true; break; }
 }
 check("connexions répétées limitées", blocked);
+
+
+// ---------- offres extraites par IA : file de révision ----------
+await ensureCategories();
+const aiCollector = (titles: string[]) => ({
+  id: "e2e-ai", source: "ai", reviewStatus: "pending" as const,
+  establishment: { slug: "e2e-ia", name: "E2E IA Marché", kind: "epicerie" },
+  fetch: async () => titles.map((t, i) => ({ externalId: `ai-e2e-${i}`, title: t, price: 2.5 + i, validTo: "2099-01-01" })),
+});
+await ingest(aiCollector(["Saucisses ziti IAtest", "Fromage brie IAtest"]));
+r = await new Client().get("/?q=IAtest");
+check("offres IA en attente : invisibles au public", !r.text.includes("Saucisses ziti IAtest"), r.text.length + "");
+r = await c.get("/admin");
+check("offres IA en attente : visibles dans la file admin", r.text.includes("Saucisses ziti IAtest") && r.text.includes("à réviser"));
+const [ai1] = await query<{ id: number }>("SELECT id FROM promotions WHERE title = 'Saucisses ziti IAtest'");
+const [ai2] = await query<{ id: number }>("SELECT id FROM promotions WHERE title = 'Fromage brie IAtest'");
+r = await c.submit("/admin", `name="id" value="${ai1.id}"`, { decision: "publish" });
+check("publication d'une offre IA", (await query("SELECT 1 FROM promotions WHERE id=$1 AND status='published'", [ai1.id])).length === 1, `${r.status} ${r.location}`);
+r = await new Client().get("/?q=IAtest");
+check("offre publiée visible, offre non révisée toujours cachée", r.text.includes("Saucisses ziti IAtest") && !r.text.includes("Fromage brie IAtest"));
+r = await c.submit("/admin", `name="id" value="${ai2.id}"`, { decision: "reject" });
+check("rejet d'une offre IA", (await query("SELECT 1 FROM promotions WHERE id=$1 AND status='rejected'", [ai2.id])).length === 1);
+await ingest(aiCollector(["Saucisses ziti IAtest", "Fromage brie IAtest"]));
+const stat = await query<{ title: string; status: string }>("SELECT title, status FROM promotions WHERE source='ai' AND title LIKE '%IAtest' ORDER BY title");
+check("nouvelle collecte : statuts conservés (pas de re-proposition d'un rejet)", stat.map((x) => x.status).join() === "rejected,published", JSON.stringify(stat));
+r = await new Client().get("/api/health");
+const anon2 = new Client();
+r = await anon2.get("/admin");
+check("/admin fermé aux anonymes", r.status === 307);
 
 // ---------- nettoyage ----------
 await query("DELETE FROM users WHERE email LIKE 'e2e-%@example.com'");

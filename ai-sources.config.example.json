@@ -1,0 +1,8 @@
+[
+  {
+    "establishment": { "slug": "mon-commerce", "name": "Mon commerce", "kind": "epicerie", "website": "https://exemple.ca" },
+    "urls": ["https://exemple.ca/circulaire"],
+    "authorized": false,
+    "notes": "Passez à true seulement si vous avez le droit d'utiliser ces pages (entente, conditions d'utilisation, robots.txt)."
+  }
+]

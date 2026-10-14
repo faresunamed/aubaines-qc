@@ -1,0 +1,21 @@
+name: Collecte quotidienne (agent IA)
+on:
+  schedule:
+    - cron: "17 9 * * *"   # tous les jours, 9 h 17 UTC (5 h 17 à Montréal)
+  workflow_dispatch: {}
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run collect:ai
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Contenu JSON de ai-sources.config.json (secret ou variable du dépôt)
+          AI_SOURCES_JSON: ${{ secrets.AI_SOURCES_JSON }}

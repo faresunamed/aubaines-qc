@@ -25,6 +25,7 @@ export type Match = {
 export async function findAlertMatches(a: AlertRow, limit = 10): Promise<Match[]> {
   const params: unknown[] = [a.last_checked_at];
   const where = [
+    "p.status = 'published'",
     "p.created_at > $1",
     "(p.valid_to IS NULL OR p.valid_to >= CURRENT_DATE)",
   ];

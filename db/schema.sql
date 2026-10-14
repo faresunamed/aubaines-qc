@@ -105,6 +105,9 @@ CREATE TABLE IF NOT EXISTS merchant_profiles (
 
 ALTER TABLE promotions ADD COLUMN IF NOT EXISTS created_by INT REFERENCES users(id) ON DELETE SET NULL;
 ALTER TABLE promotions ADD COLUMN IF NOT EXISTS source TEXT NOT NULL DEFAULT 'collector';
+-- Modération : 'published' (visible) ou 'pending' (extraction IA en attente de revue).
+ALTER TABLE promotions ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'published';
+CREATE INDEX IF NOT EXISTS promotions_status_idx ON promotions (status);
 
 CREATE TABLE IF NOT EXISTS alerts (
   id               SERIAL PRIMARY KEY,

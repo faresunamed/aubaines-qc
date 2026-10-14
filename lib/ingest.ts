@@ -31,6 +31,7 @@ export async function ingest(collector: Collector) {
   const cats = await query(`SELECT id, slug FROM categories`);
   const catId = new Map<string, number>(cats.map((c: any) => [c.slug, c.id] as [string, number]));
 
+  const source = collector.source ?? "collector";
   let count = 0;
   for (const p of raws) {
     const cls = classify(p.title, `${p.brand ?? ""} ${p.description ?? ""}`, p.categoryHint);
@@ -43,8 +44,8 @@ export async function ingest(collector: Collector) {
       `INSERT INTO promotions
         (establishment_id, category_id, external_id, title, brand, description, price,
          regular_price, discount_percent, unit, image_url, source_url, valid_from, valid_to,
-         search_text, is_demo, updated_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16, now())
+         search_text, is_demo, source, status, updated_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18, now())
        ON CONFLICT (establishment_id, external_id) DO UPDATE SET
          category_id = EXCLUDED.category_id, title = EXCLUDED.title, brand = EXCLUDED.brand,
          description = EXCLUDED.description, price = EXCLUDED.price,
@@ -59,6 +60,7 @@ export async function ingest(collector: Collector) {
         p.validTo ?? null,
         normalize(`${p.title} ${p.brand ?? ""} ${est.name}`),
         collector.demo === true,
+        source, collector.reviewStatus ?? "published",
       ],
     );
     count++;
@@ -69,9 +71,9 @@ export async function ingest(collector: Collector) {
   if (count > 0) {
     await query(
       `DELETE FROM promotions
-       WHERE establishment_id = $1 AND source = 'collector'
+       WHERE establishment_id = $1 AND source = $4
          AND (updated_at < $2 OR (is_demo AND $3 = FALSE))`,
-      [establishmentId, started, collector.demo === true],
+      [establishmentId, started, collector.demo === true, source],
     );
   }
   return count;

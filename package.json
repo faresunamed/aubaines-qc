@@ -11,6 +11,8 @@
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/collect.ts --demo",
     "collect": "tsx scripts/collect.ts",
+    "collect:ai": "tsx scripts/collect-ai.ts",
+    "test:extract": "tsx scripts/test-extract.ts",
     "test": "tsx scripts/test-classifier.ts",
     "make-admin": "tsx scripts/make-admin.ts",
     "alerts": "tsx scripts/send-alerts.ts",

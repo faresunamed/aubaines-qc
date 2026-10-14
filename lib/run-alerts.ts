@@ -36,7 +36,7 @@ for (const u of users) {
             to_char(p.valid_to,'YYYY-MM-DD') AS valid_to
      FROM favorites f JOIN promotions p ON p.id = f.promotion_id
      JOIN establishments e ON e.id = p.establishment_id
-     WHERE f.user_id = $1 AND f.reminded_at IS NULL
+     WHERE f.user_id = $1 AND f.reminded_at IS NULL AND p.status = 'published'
        AND p.valid_to BETWEEN CURRENT_DATE AND CURRENT_DATE + 2`,
     [u.id],
   );

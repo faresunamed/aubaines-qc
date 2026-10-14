@@ -28,5 +28,9 @@ export interface Collector {
   establishment: EstablishmentInfo;
   /** true si les données sont fictives (affiche un bandeau « démo » sur le site). */
   demo?: boolean;
+  /** Valeur de promotions.source (défaut « collector »). */
+  source?: string;
+  /** « pending » = en attente de revue par un admin avant publication. */
+  reviewStatus?: "published" | "pending";
   fetch(): Promise<RawPromotion[]>;
 }

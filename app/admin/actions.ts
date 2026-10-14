@@ -71,3 +71,27 @@ export async function deletePromotion(form: FormData): Promise<void> {
   revalidatePath("/", "layout");
   redirect("/admin?ok=supprime");
 }
+
+/** Revue des offres extraites par l'IA. « Rejeter » garde la ligne (statut rejected) pour ne pas la reproposer. */
+async function setStatus(where: string, params: unknown[], status: "published" | "rejected") {
+  await requireAdmin();
+  await query(
+    `UPDATE promotions SET status = $1${status === "published" ? ", created_at = now()" : ""}
+     WHERE status = 'pending' AND ${where}`,
+    [status, ...params],
+  );
+  revalidatePath("/", "layout");
+  redirect(`/admin?ok=${status === "published" ? "publie" : "rejete"}`);
+}
+
+export async function reviewPromotion(form: FormData): Promise<void> {
+  const id = Number(form.get("id"));
+  if (!Number.isInteger(id)) redirect("/admin");
+  await setStatus("id = $2", [id], form.get("decision") === "publish" ? "published" : "rejected");
+}
+
+export async function reviewEstablishment(form: FormData): Promise<void> {
+  const id = Number(form.get("establishmentId"));
+  if (!Number.isInteger(id)) redirect("/admin");
+  await setStatus("establishment_id = $2", [id], form.get("decision") === "publish" ? "published" : "rejected");
+}
