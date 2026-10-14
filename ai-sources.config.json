@@ -33,10 +33,10 @@
       "website": "https://maxi.ca"
     },
     "urls": [
-      "https://maxi.ca/"
+      "https://www.maxi.ca/fr/deals/all"
     ],
-    "authorized": false,
-    "notes": "À COMPLÉTER : remplacez l'URL par la page de circulaire exacte, vérifiez les conditions d'utilisation et robots.txt, puis passez authorized à true."
+    "authorized": true,
+    "notes": "Page des rabais fournie par le propriétaire du site. Vérifier conditions d'utilisation et robots.txt."
   },
   {
     "establishment": {
