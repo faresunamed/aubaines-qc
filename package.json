@@ -14,7 +14,8 @@
     "test": "tsx scripts/test-classifier.ts",
     "make-admin": "tsx scripts/make-admin.ts",
     "alerts": "tsx scripts/send-alerts.ts",
-    "e2e": "tsx scripts/e2e.ts"
+    "e2e": "tsx scripts/e2e.ts",
+    "gen:demo-sql": "tsx scripts/gen-demo-sql.ts"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -122,3 +122,53 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS alerts_opt_out BOOLEAN NOT NULL DEFAU
 ALTER TABLE users ADD COLUMN IF NOT EXISTS unsubscribe_token TEXT UNIQUE;
 
 ALTER TABLE favorites ADD COLUMN IF NOT EXISTS reminded_at TIMESTAMPTZ;
+
+-- ===== Données de référence : types de produits =====
+-- (miroir de lib/categories.ts ; `npm run db:migrate` les resynchronise aussi)
+INSERT INTO categories (slug, name, group_name, sort) VALUES
+  ('fruits-legumes', 'Fruits et légumes', 'Épicerie', 0),
+  ('viandes-poissons', 'Viandes et poissons', 'Épicerie', 1),
+  ('produits-laitiers-oeufs', 'Produits laitiers et œufs', 'Épicerie', 2),
+  ('boulangerie', 'Boulangerie et pâtisserie', 'Épicerie', 3),
+  ('garde-manger', 'Garde-manger', 'Épicerie', 4),
+  ('surgeles', 'Surgelés', 'Épicerie', 5),
+  ('boissons', 'Boissons', 'Épicerie', 6),
+  ('collations-confiseries', 'Collations et confiseries', 'Épicerie', 7),
+  ('pharmacie-sante', 'Pharmacie et santé', 'Santé et beauté', 8),
+  ('beaute-soins', 'Beauté et soins personnels', 'Santé et beauté', 9),
+  ('bebe', 'Bébé et enfants', 'Famille', 10),
+  ('animaux', 'Animaux', 'Famille', 11),
+  ('entretien-menager', 'Entretien ménager', 'Maison', 12),
+  ('maison-cuisine', 'Maison et cuisine', 'Maison', 13),
+  ('electronique', 'Électronique et électroménagers', 'Maison', 14),
+  ('quincaillerie-renovation', 'Quincaillerie et rénovation', 'Maison', 15),
+  ('jardin-exterieur', 'Jardin et extérieur', 'Maison', 16),
+  ('vetements', 'Vêtements et chaussures', 'Mode et loisirs', 17),
+  ('sports-plein-air', 'Sports et plein air', 'Mode et loisirs', 18),
+  ('jouets-jeux', 'Jouets et jeux', 'Mode et loisirs', 19),
+  ('auto', 'Auto', 'Mode et loisirs', 20),
+  ('autre', 'Autres', 'Divers', 21)
+ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name, group_name = EXCLUDED.group_name, sort = EXCLUDED.sort;
+
+-- ===== Sécurité (important sur Supabase) =====
+-- Supabase expose les tables du schéma « public » via une API REST publique
+-- (clé « anon »). Le site se connecte directement à Postgres, donc on ferme
+-- cette porte : RLS activée sans aucune politique = accès refusé à l'API.
+-- Le rôle « postgres » utilisé par l'application contourne la RLS.
+ALTER TABLE users             ENABLE ROW LEVEL SECURITY;
+ALTER TABLE establishments    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE categories        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE promotions        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE favorites         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE auth_tokens       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE rate_limits       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE email_outbox      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE merchant_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE alerts            ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+    REVOKE ALL ON ALL TABLES    IN SCHEMA public FROM anon, authenticated;
+    REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM anon, authenticated;
+  END IF;
+END $$;

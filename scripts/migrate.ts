@@ -9,4 +9,10 @@ const client = new Client({
 await client.connect();
 await client.query(fs.readFileSync(path.resolve("db/schema.sql"), "utf8"));
 await client.end();
+
+// Resynchronise les catégories depuis lib/categories.ts (source de vérité du code).
+const { ensureCategories } = await import("../lib/ingest");
+const { pool } = await import("../lib/db");
+await ensureCategories();
+await pool.end();
 console.log("Schéma appliqué.");

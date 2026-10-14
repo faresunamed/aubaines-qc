@@ -22,7 +22,7 @@ npm install
 cp .env.example .env.local         # puis changez AUTH_SECRET
 npm run db:dev                     # Postgres local (port 5433) — avec un utilisateur non-root
 npm run db:migrate                 # crée/met à jour les tables (idempotent)
-npm run db:seed                    # 90 promotions FICTIVES de démonstration
+npm run db:seed                    # 90 promotions FICTIVES de démonstration (ou db/demo-data.sql)
 npm run dev                        # http://localhost:3000
 ```
 
@@ -43,6 +43,20 @@ npm run e2e                                # 50 vérifications de bout en bout (
 ```
 
 `e2e` couvre : inscription/consentement, confirmation du courriel (usage unique), mot de passe oublié et révocation des sessions, portail commerçant (approbation, offres, import CSV, droits d'accès), alertes et désabonnement, pages SEO, limitation des tentatives.
+
+## Base de données sur Supabase (ou tout autre Postgres)
+
+L'application utilise du Postgres standard via `DATABASE_URL` ; elle n'utilise pas le client Supabase.
+
+1. Dans Supabase : **SQL Editor → New query**, collez le contenu de [`db/schema.sql`](db/schema.sql) et cliquez **Run**. Ce script crée les tables, ajoute les types de produits (catégories) et **active la sécurité par lignes (RLS)** pour que l'API publique de Supabase ne puisse pas lire vos tables (courriels, hash de mots de passe…). Il est relançable sans danger.
+2. Optionnel, pour voir le site rempli : exécutez de la même façon [`db/demo-data.sql`](db/demo-data.sql) (90 promotions **fictives**, dates relatives). Pour les retirer : `DELETE FROM promotions WHERE is_demo;`
+3. Adresse de connexion (bouton **Connect** du projet) :
+   - hébergement « serverless » (Vercel…) : **Transaction pooler** (port 6543) ;
+   - exécuter `npm run db:migrate` depuis votre ordinateur : **Session pooler** (port 5432) — la connexion directe est en IPv6 seulement, ce qui échoue sur beaucoup de réseaux.
+4. Ajoutez `?sslmode=no-verify` à l'adresse si vous obtenez une erreur de certificat, puis mettez-la dans `DATABASE_URL` (hébergeur et `.env.local`).
+
+Le plan gratuit de Supabase met le projet en pause après environ une semaine sans activité : il faut alors le réactiver depuis le tableau de bord.
+Ces étapes n'ont pas été testées contre un vrai projet Supabase ; le script a été validé sur Postgres local (deux exécutions de suite, sans erreur).
 
 ## Mise en ligne (guide — non testé sur ces plateformes)
 
