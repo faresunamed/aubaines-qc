@@ -137,10 +137,10 @@
       "website": "https://jeancoutu.com"
     },
     "urls": [
-      "https://www.jeancoutu.com/"
+      "https://www.jeancoutu.com/magasiner/circulaire"
     ],
     "authorized": true,
-    "notes": "URL provisoire (page d'accueil) : la page /fr/circulaire/ donne 404. Remplacez par l'adresse exacte de la circulaire."
+    "notes": "Page circulaire fournie par le propriétaire du site. Vérifier conditions d'utilisation et robots.txt."
   },
   {
     "establishment": {
