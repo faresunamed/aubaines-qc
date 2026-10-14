@@ -11,6 +11,8 @@ export type AiSourceConfig = {
   notes?: string;
   /** true = afficher la page dans un navigateur (circulaires chargées par JavaScript). */
   render?: boolean;
+  /** true = publier directement (sinon : file « à réviser » dans /admin). Un rejet manuel reste rejeté. */
+  autoPublish?: boolean;
 };
 
 export { BOT_UA };
@@ -33,7 +35,7 @@ export function aiExtractCollector(cfg: AiSourceConfig, model: ModelCaller, log?
     id: `ai-${cfg.establishment.slug}`,
     establishment: cfg.establishment,
     source: "ai",
-    reviewStatus: "pending",
+    reviewStatus: cfg.autoPublish ? "published" : "pending",
     async fetch(): Promise<RawPromotion[]> {
       if (cfg.authorized !== true) throw new Error(`${cfg.establishment.name} : "authorized": true requis (voir README)`);
       const today = new Date().toISOString().slice(0, 10);

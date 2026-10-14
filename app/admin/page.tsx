@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/auth";
 import { query } from "@/lib/db";
-import { approveMerchant, deletePromotion, rejectMerchant, reviewEstablishment, reviewPromotion } from "./actions";
+import { approveMerchant, deletePromotion, rejectMerchant, reviewAll, reviewEstablishment, reviewPromotion } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Administration — Aubaines QC", robots: { index: false } };
@@ -61,6 +61,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ o
 
       <h2>Offres à réviser — extraction IA ({review.length})</h2>
       {review.length === 0 && <p className="empty">Rien à réviser.</p>}
+      {review.length > 0 && (
+        <form action={reviewAll} className="inline-form">
+          <button name="decision" value="publish" className="btn btn-primary btn-sm">Tout publier ({review.length})</button>
+          <button name="decision" value="reject" className="linklike danger">Tout rejeter</button>
+        </form>
+      )}
       {[...reviewByEst].map(([estId, g]) => (
         <div key={estId} className="panel">
           <p><strong>{g.name}</strong> — {g.rows.length} offre(s). Comparez avec la source avant de publier.</p>

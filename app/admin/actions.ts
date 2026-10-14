@@ -90,6 +90,10 @@ export async function reviewPromotion(form: FormData): Promise<void> {
   await setStatus("id = $2", [id], form.get("decision") === "publish" ? "published" : "rejected");
 }
 
+export async function reviewAll(form: FormData): Promise<void> {
+  await setStatus("TRUE", [], form.get("decision") === "publish" ? "published" : "rejected");
+}
+
 export async function reviewEstablishment(form: FormData): Promise<void> {
   const id = Number(form.get("establishmentId"));
   if (!Number.isInteger(id)) redirect("/admin");

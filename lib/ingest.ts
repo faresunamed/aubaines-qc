@@ -52,7 +52,9 @@ export async function ingest(collector: Collector) {
          regular_price = EXCLUDED.regular_price, discount_percent = EXCLUDED.discount_percent,
          unit = EXCLUDED.unit, image_url = EXCLUDED.image_url, source_url = EXCLUDED.source_url,
          valid_from = EXCLUDED.valid_from, valid_to = EXCLUDED.valid_to,
-         search_text = EXCLUDED.search_text, is_demo = EXCLUDED.is_demo, updated_at = now()`,
+         search_text = EXCLUDED.search_text, is_demo = EXCLUDED.is_demo, updated_at = now(),
+         status = CASE WHEN promotions.status = 'pending' AND EXCLUDED.status = 'published'
+                       THEN 'published' ELSE promotions.status END`,
       [
         establishmentId, categoryId, p.externalId, p.title, p.brand ?? null,
         p.description ?? null, p.price ?? null, p.regularPrice ?? null, pct ?? null,

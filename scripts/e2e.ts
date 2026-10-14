@@ -254,6 +254,10 @@ check("rejet d'une offre IA", (await query("SELECT 1 FROM promotions WHERE id=$1
 await ingest(aiCollector(["Saucisses ziti IAtest", "Fromage brie IAtest"]));
 const stat = await query<{ title: string; status: string }>("SELECT title, status FROM promotions WHERE source='ai' AND title LIKE '%IAtest' ORDER BY title");
 check("nouvelle collecte : statuts conservés (pas de re-proposition d'un rejet)", stat.map((x) => x.status).join() === "rejected,published", JSON.stringify(stat));
+await ingest({ ...aiCollector(["Saucisses ziti IAtest", "Fromage brie IAtest", "Yogourt grec IAtest"]), reviewStatus: "pending" as const });
+await ingest({ ...aiCollector(["Saucisses ziti IAtest", "Fromage brie IAtest", "Yogourt grec IAtest"]), reviewStatus: "published" as const });
+const st2 = await query<{ title: string; status: string }>("SELECT title, status FROM promotions WHERE source='ai' AND title LIKE '%IAtest' ORDER BY title");
+check("autoPublish : le pending devient publié, le rejet est conservé", st2.map((x) => x.status).join() === "rejected,published,published", JSON.stringify(st2));
 r = await new Client().get("/api/health");
 const anon2 = new Client();
 r = await anon2.get("/admin");
