@@ -1,0 +1,17 @@
+[
+  {
+    "establishment": { "slug": "mon-commerce", "name": "Mon commerce", "kind": "epicerie", "website": "https://exemple.ca" },
+    "url": "https://exemple.ca/api/promotions.json",
+    "itemsPath": "items",
+    "fields": {
+      "id": "sku",
+      "title": "name",
+      "price": "sale_price",
+      "regularPrice": "regular_price",
+      "imageUrl": "image",
+      "sourceUrl": "url",
+      "validFrom": "start_date",
+      "validTo": "end_date"
+    }
+  }
+]
