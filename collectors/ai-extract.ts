@@ -1,3 +1,5 @@
+import { BOT_UA } from "../lib/bot";
+import { renderPage } from "../lib/render";
 import { chunkText, htmlToText, robotsAllows, validateItems, type ModelCaller } from "../lib/extract";
 import type { Collector, EstablishmentInfo, RawPromotion } from "./types";
 
@@ -7,9 +9,11 @@ export type AiSourceConfig = {
   /** DOIT être true : vous confirmez avoir le droit d'utiliser ces pages (conditions, robots.txt). */
   authorized: boolean;
   notes?: string;
+  /** true = afficher la page dans un navigateur (circulaires chargées par JavaScript). */
+  render?: boolean;
 };
 
-export const BOT_UA = "AubainesQCBot/1.0 (+https://aubaines-qc.vercel.app)";
+export { BOT_UA };
 const MAX_BYTES = 2_000_000;
 
 async function getText(url: string, accept: string): Promise<{ ok: boolean; status: number; body: string; type: string }> {
@@ -43,10 +47,18 @@ export function aiExtractCollector(cfg: AiSourceConfig, model: ModelCaller, log?
             const r = await getText(`${u.origin}/robots.txt`, "text/plain");
             if (r.ok && !robotsAllows(r.body, u.pathname + u.search)) { entry.status = "interdit par robots.txt"; log?.(entry); continue; }
           } catch { /* robots.txt injoignable : on continue */ }
-          const page = await getText(url, "text/html");
-          if (!page.ok) throw new Error(`HTTP ${page.status}`);
-          if (!/html|text/i.test(page.type)) throw new Error(`type non pris en charge (${page.type})`);
-          const text = htmlToText(page.body);
+          let html: string;
+          if (cfg.render) {
+            const r = await renderPage(url);
+            if (r.status >= 400) throw new Error(`HTTP ${r.status}`);
+            html = r.html;
+          } else {
+            const page = await getText(url, "text/html");
+            if (!page.ok) throw new Error(`HTTP ${page.status}`);
+            if (!/html|text/i.test(page.type)) throw new Error(`type non pris en charge (${page.type})`);
+            html = page.body;
+          }
+          const text = htmlToText(html);
           if (text.length < 200) throw new Error("page vide (rendu JavaScript ?)");
           for (const chunk of chunkText(text)) {
             const raw = await model(chunk, { establishment: cfg.establishment.name, today });

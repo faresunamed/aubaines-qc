@@ -35,8 +35,8 @@
     "urls": [
       "https://www.maxi.ca/fr/deals/all"
     ],
-    "authorized": true,
-    "notes": "Page des rabais fournie par le propriétaire du site. Vérifier conditions d'utilisation et robots.txt."
+    "authorized": false,
+    "notes": "Désactivé : le site répond HTTP 403 aux robots. Demander un accès officiel à Loblaw."
   },
   {
     "establishment": {
@@ -140,7 +140,8 @@
       "https://www.jeancoutu.com/magasiner/circulaire"
     ],
     "authorized": true,
-    "notes": "Page circulaire fournie par le propriétaire du site. Vérifier conditions d'utilisation et robots.txt."
+    "notes": "Page circulaire fournie par le propriétaire du site. Vérifier conditions d'utilisation et robots.txt.",
+    "render": true
   },
   {
     "establishment": {
@@ -205,7 +206,8 @@
       "https://www.canadiantire.ca/fr/promotions/offres-de-semaine.html"
     ],
     "authorized": true,
-    "notes": "Page « Offres de la semaine » fournie par le propriétaire du site. Vérifier conditions d'utilisation et robots.txt."
+    "notes": "Page « Offres de la semaine » fournie par le propriétaire du site. Vérifier conditions d'utilisation et robots.txt.",
+    "render": true
   },
   {
     "establishment": {

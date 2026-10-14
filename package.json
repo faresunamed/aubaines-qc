@@ -38,6 +38,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "embedded-postgres": "^17.2.0-beta.15",
+    "playwright": "^1.64.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
