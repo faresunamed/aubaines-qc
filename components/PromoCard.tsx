@@ -1,5 +1,5 @@
 import { toggleFavorite } from "@/app/actions";
-import { iconFor } from "@/lib/category-icons";
+import { productIcon } from "@/lib/product-icons";
 import type { Promo } from "@/lib/promotions";
 
 const money = (v: string | null) =>
@@ -23,7 +23,7 @@ export default function PromoCard({ p }: { p: Promo }) {
   return (
     <article className="card">
       <div className="card-visual">
-        <span className="card-icon" aria-hidden="true">{iconFor(p.category_slug)}</span>
+        <span className="card-icon" aria-hidden="true">{productIcon(p.title, p.category_slug)}</span>
         {p.discount_percent ? <span className="sticker">−{p.discount_percent}&nbsp;%</span> : null}
       </div>
       <p className="card-store">
