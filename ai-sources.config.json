@@ -202,10 +202,10 @@
       "website": "https://canadiantire.ca"
     },
     "urls": [
-      "https://www.canadiantire.ca/fr/flyers.html"
+      "https://www.canadiantire.ca/fr/promotions/offres-de-semaine.html"
     ],
     "authorized": true,
-    "notes": "URL de circulaire à confirmer ; vérifier conditions d'utilisation et robots.txt. Si le journal indique « page vide (rendu JavaScript ?) », la circulaire est chargée par JavaScript."
+    "notes": "Page « Offres de la semaine » fournie par le propriétaire du site. Vérifier conditions d'utilisation et robots.txt."
   },
   {
     "establishment": {
