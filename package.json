@@ -22,6 +22,8 @@
     "gen:demo-sql": "tsx scripts/gen-demo-sql.ts"
   },
   "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource-variable/figtree": "^5.3.0",
     "@supabase/supabase-js": "^2.117.3",
     "bcryptjs": "^2.4.3",
     "jose": "^5.9.6",

@@ -1,4 +1,5 @@
 import { toggleFavorite } from "@/app/actions";
+import { iconFor } from "@/lib/category-icons";
 import type { Promo } from "@/lib/promotions";
 
 const money = (v: string | null) =>
@@ -21,12 +22,14 @@ export default function PromoCard({ p }: { p: Promo }) {
   const end = endLabel(p.valid_to);
   return (
     <article className="card">
-      <div className="card-top">
-        <span className="chip" style={{ ["--c" as string]: p.establishment_color }}>
-          {p.establishment_name}
-        </span>
-        {p.discount_percent ? <span className="badge">−{p.discount_percent} %</span> : null}
+      <div className="card-visual">
+        <span className="card-icon" aria-hidden="true">{iconFor(p.category_slug)}</span>
+        {p.discount_percent ? <span className="sticker">−{p.discount_percent}&nbsp;%</span> : null}
       </div>
+      <p className="card-store">
+        <i style={{ background: p.establishment_color }} aria-hidden="true" />
+        {p.establishment_name}
+      </p>
       <h3 className="card-title">{p.title}</h3>
       <p className="card-cat">{p.category_name}</p>
       <div className="card-price">

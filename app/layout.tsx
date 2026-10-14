@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getUser } from "@/lib/auth";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { logout, resendVerification } from "./actions";
+import "@fontsource-variable/bricolage-grotesque";
+import "@fontsource-variable/figtree";
 import "./globals.css";
 
 export const metadata: Metadata = {

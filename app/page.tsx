@@ -3,6 +3,7 @@ import PromoCard from "@/components/PromoCard";
 import { getUser } from "@/lib/auth";
 import { getFacets, hasDemoData, PAGE_SIZE, searchPromotions } from "@/lib/promotions";
 import { CATEGORY_GROUPS } from "@/lib/categories";
+import { iconFor } from "@/lib/category-icons";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: { absolute: "Aubaines QC — toutes les promotions du Québec au même endroit" } };
@@ -53,14 +54,21 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
       )}
 
       <section className="hero">
-        <h1>Toutes les promotions du Québec, au même endroit.</h1>
-        <p>Épiceries, pharmacies, électronique, rénovation… triées par produit et par établissement.</p>
+        <h1>Les rabais du Québec, réunis au même endroit.</h1>
+        <p>Épiceries, pharmacies, électronique, rénovation : comparez les prix par produit et par commerce.</p>
         <form action="/" className="search">
-          <input name="q" defaultValue={f.q} placeholder="Rechercher un produit : poulet, couches, perceuse…" aria-label="Rechercher" />
+          <input name="q" defaultValue={f.q} placeholder="Poulet, couches…" aria-label="Rechercher un produit" />
           {f.categorie && <input type="hidden" name="categorie" value={f.categorie} />}
           {f.etablissement && <input type="hidden" name="etablissement" value={f.etablissement} />}
-          <button className="btn btn-primary">Rechercher</button>
+          <button className="btn btn-light">Rechercher</button>
         </form>
+        <nav className="quick" aria-label="Types de produits">
+          {facets.categories.filter((c) => c.n > 0).slice(0, 9).map((c) => (
+            <Link key={c.slug} href={href({ categorie: c.slug, page: 1 })} className={f.categorie === c.slug ? "active" : ""}>
+              <span aria-hidden="true">{iconFor(c.slug)}</span> {c.name}
+            </Link>
+          ))}
+        </nav>
       </section>
 
       <div className="layout">
@@ -99,7 +107,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
                   {cats.map((c) => (
                     <li key={c.slug}>
                       <Link href={href({ categorie: c.slug, page: 1 })} className={f.categorie === c.slug ? "active" : ""}>
-                        {c.name} <small>{c.n}</small>
+                        <span><span aria-hidden="true" className="ico">{iconFor(c.slug)}</span>{c.name}</span> <small>{c.n}</small>
                       </Link>
                     </li>
                   ))}
