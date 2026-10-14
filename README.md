@@ -53,7 +53,8 @@ L'application utilise du Postgres standard via `DATABASE_URL` ; elle n'utilise p
 3. Adresse de connexion (bouton **Connect** du projet) :
    - hébergement « serverless » (Vercel…) : **Transaction pooler** (port 6543) ;
    - exécuter `npm run db:migrate` depuis votre ordinateur : **Session pooler** (port 5432) — la connexion directe est en IPv6 seulement, ce qui échoue sur beaucoup de réseaux.
-4. Ajoutez `?sslmode=no-verify` à l'adresse si vous obtenez une erreur de certificat, puis mettez-la dans `DATABASE_URL` (hébergeur et `.env.local`).
+4. Mettez l'adresse dans `DATABASE_URL` (hébergeur et `.env.local`). Les paramètres `sslmode` et `supa` sont ignorés : le code gère le SSL lui-même (connexion chiffrée ; ajoutez `DATABASE_CA` avec le certificat de votre projet pour aussi vérifier l'identité du serveur).
+5. **Intégration Vercel ↔ Supabase :** elle crée automatiquement `POSTGRES_URL` (pooler) et d'autres variables. Si `DATABASE_URL` n'est pas définie, l'application utilise `POSTGRES_URL` ; vous n'avez donc rien à copier à la main. N'ajoutez pas de préfixe personnalisé, sinon les variables changent de nom.
 
 Le plan gratuit de Supabase met le projet en pause après environ une semaine sans activité : il faut alors le réactiver depuis le tableau de bord.
 Ces étapes n'ont pas été testées contre un vrai projet Supabase ; le script a été validé sur Postgres local (deux exécutions de suite, sans erreur).

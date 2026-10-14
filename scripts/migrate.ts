@@ -1,11 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Client } from "pg";
+import { pgConfig } from "../lib/pg-config";
 
-const client = new Client({
-  connectionString:
-    process.env.DATABASE_URL ?? "postgres://postgres:postgres@localhost:5433/aubaines",
-});
+const { max: _max, ...clientConfig } = pgConfig();
+const client = new Client(clientConfig);
 await client.connect();
 await client.query(fs.readFileSync(path.resolve("db/schema.sql"), "utf8"));
 await client.end();

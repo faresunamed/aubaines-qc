@@ -1,15 +1,11 @@
 import { Pool } from "pg";
+import { pgConfig } from "./pg-config";
 
 const globalForPg = globalThis as unknown as { pgPool?: Pool };
 
 export const pool =
   globalForPg.pgPool ??
-  new Pool({
-    connectionString:
-      process.env.DATABASE_URL ??
-      "postgres://postgres:postgres@localhost:5433/aubaines",
-    max: 10,
-  });
+  new Pool(pgConfig());
 
 if (process.env.NODE_ENV !== "production") globalForPg.pgPool = pool;
 
