@@ -2,7 +2,7 @@
 // Usage : BASE_URL=http://localhost:3100 npm run e2e
 // ATTENTION : écrit dans la base (comptes e2e-*@example.com) — refuse de tourner hors localhost.
 import { spawnSync } from "node:child_process";
-import { pool, query } from "../lib/db";
+import { closeDb, query } from "../lib/db";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3100";
 const dbUrl = process.env.DATABASE_URL ?? "postgres://postgres:postgres@localhost:5433/aubaines";
@@ -232,6 +232,6 @@ check("connexions répétées limitées", blocked);
 // ---------- nettoyage ----------
 await query("DELETE FROM users WHERE email LIKE 'e2e-%@example.com'");
 await query("DELETE FROM establishments WHERE slug LIKE 'e2e-%'");
-await pool.end();
+await closeDb();
 console.log(`\n${passed} réussis, ${failed} échoués`);
 process.exit(failed ? 1 : 0);

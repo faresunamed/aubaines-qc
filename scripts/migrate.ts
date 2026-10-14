@@ -11,7 +11,7 @@ await client.end();
 
 // Resynchronise les catégories depuis lib/categories.ts (source de vérité du code).
 const { ensureCategories } = await import("../lib/ingest");
-const { pool } = await import("../lib/db");
+const { closeDb } = await import("../lib/db");
 await ensureCategories();
-await pool.end();
+await closeDb();
 console.log("Schéma appliqué.");

@@ -15,9 +15,12 @@
     "make-admin": "tsx scripts/make-admin.ts",
     "alerts": "tsx scripts/send-alerts.ts",
     "e2e": "tsx scripts/e2e.ts",
+    "e2e:api": "bash scripts/e2e-api.sh",
+    "mock:supabase": "tsx scripts/mock-supabase.ts",
     "gen:demo-sql": "tsx scripts/gen-demo-sql.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.3",
     "bcryptjs": "^2.4.3",
     "jose": "^5.9.6",
     "next": "^15.1.0",

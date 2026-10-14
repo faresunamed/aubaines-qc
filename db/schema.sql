@@ -172,3 +172,80 @@ DO $$ BEGIN
     REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM anon, authenticated;
   END IF;
 END $$;
+
+-- ===== Accès par l'API Supabase (SUPABASE_URL + clé secrète) =====
+-- Le site peut interroger la base par l'API HTTPS de Supabase, sans adresse Postgres :
+-- il appelle cette fonction via  POST /rest/v1/rpc/app_query  avec la CLÉ SECRÈTE.
+-- Elle exécute UNE instruction paramétrée (SELECT / INSERT / UPDATE / DELETE / WITH).
+-- Garde-fous : réservée au rôle service_role (clé secrète) ; refusée aux clés publiques ;
+-- une seule instruction, pas de DDL ; les valeurs sont échappées avec quote_nullable en un
+-- seul passage (une valeur contenant « $2 » n'est jamais réinterprétée) ; la fonction
+-- s'exécute avec les droits de l'appelant (service_role), pas ceux du propriétaire.
+CREATE OR REPLACE FUNCTION public.app_query(
+  p_sql          text,
+  p_params       jsonb   DEFAULT '[]'::jsonb,
+  p_returns_rows boolean DEFAULT true
+) RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = public, pg_temp
+AS $fn$
+DECLARE
+  v_out    text := '';
+  v_rest   text := p_sql;
+  v_m      text[];
+  v_idx    int;
+  v_result jsonb;
+BEGIN
+  IF p_sql IS NULL OR length(p_sql) > 20000 THEN
+    RAISE EXCEPTION 'requête invalide';
+  END IF;
+  IF position(';' in p_sql) > 0 THEN
+    RAISE EXCEPTION 'une seule instruction est autorisée';
+  END IF;
+  IF p_sql !~* '^\s*(select|insert|update|delete|with)\s' THEN
+    RAISE EXCEPTION 'instruction non autorisée';
+  END IF;
+  IF p_params IS NULL OR jsonb_typeof(p_params) <> 'array' THEN
+    RAISE EXCEPTION 'paramètres invalides';
+  END IF;
+
+  -- Substitution des $1, $2… en UN passage : le texte déjà substitué n'est jamais relu.
+  LOOP
+    v_m := regexp_match(v_rest, '^([^$]*)\$([0-9]+)(.*)$');
+    EXIT WHEN v_m IS NULL;
+    v_idx := v_m[2]::int;
+    IF v_idx < 1 OR v_idx > jsonb_array_length(p_params) THEN
+      RAISE EXCEPTION 'paramètre $% manquant', v_idx;
+    END IF;
+    v_out  := v_out || v_m[1] || quote_nullable(p_params ->> (v_idx - 1));
+    v_rest := v_m[3];
+  END LOOP;
+  v_out := v_out || v_rest;
+
+  IF p_returns_rows THEN
+    EXECUTE 'WITH r AS (' || v_out || ') SELECT COALESCE(jsonb_agg(to_jsonb(r)), ''[]''::jsonb) FROM r'
+      INTO v_result;
+    RETURN v_result;
+  END IF;
+
+  EXECUTE v_out;
+  RETURN '[]'::jsonb;
+END
+$fn$;
+
+REVOKE ALL ON FUNCTION public.app_query(text, jsonb, boolean) FROM PUBLIC;
+
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+    REVOKE ALL ON FUNCTION public.app_query(text, jsonb, boolean) FROM anon, authenticated;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
+    GRANT USAGE ON SCHEMA public TO service_role;
+    GRANT ALL ON ALL TABLES    IN SCHEMA public TO service_role;
+    GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO service_role;
+    GRANT EXECUTE ON FUNCTION public.app_query(text, jsonb, boolean) TO service_role;
+  END IF;
+END $$;
+
+NOTIFY pgrst, 'reload schema';

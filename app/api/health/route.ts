@@ -1,12 +1,14 @@
-import { query } from "@/lib/db";
+import { dbMode, query } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const mode = dbMode();
   try {
     await query("SELECT 1");
-    return Response.json({ ok: true });
+    return Response.json({ ok: true, mode });
   } catch {
-    return Response.json({ ok: false }, { status: 503 });
+    // Détail volontairement absent de la réponse publique : voir les logs du serveur.
+    return Response.json({ ok: false, mode }, { status: 503 });
   }
 }

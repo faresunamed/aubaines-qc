@@ -39,25 +39,37 @@ npm run make-admin -- votre@courriel.ca
 ```bash
 npm test                                   # classificateur (22 cas)
 npm run build && npm start -- -p 3100 &    # serveur de test
-npm run e2e                                # 50 vérifications de bout en bout (refuse de tourner hors base locale)
+npm run e2e                                # 50 vérifications de bout en bout, connexion Postgres directe (refuse de tourner hors base locale)
+npm run e2e:api                            # mêmes 50 + auto-tests, le site en MODE API via le simulateur (sans adresse Postgres)
 ```
 
 `e2e` couvre : inscription/consentement, confirmation du courriel (usage unique), mot de passe oublié et révocation des sessions, portail commerçant (approbation, offres, import CSV, droits d'accès), alertes et désabonnement, pages SEO, limitation des tentatives.
 
-## Base de données sur Supabase (ou tout autre Postgres)
+## Base de données sur Supabase
 
-L'application utilise du Postgres standard via `DATABASE_URL` ; elle n'utilise pas le client Supabase.
+Le site sait parler à la base de deux façons ; il choisit tout seul (vérifiable sur `/api/health`, champ `mode`).
 
-1. Dans Supabase : **SQL Editor → New query**, collez le contenu de [`db/schema.sql`](db/schema.sql) et cliquez **Run**. Ce script crée les tables, ajoute les types de produits (catégories) et **active la sécurité par lignes (RLS)** pour que l'API publique de Supabase ne puisse pas lire vos tables (courriels, hash de mots de passe…). Il est relançable sans danger.
-2. Optionnel, pour voir le site rempli : exécutez de la même façon [`db/demo-data.sql`](db/demo-data.sql) (90 promotions **fictives**, dates relatives). Pour les retirer : `DELETE FROM promotions WHERE is_demo;`
-3. Adresse de connexion (bouton **Connect** du projet) :
-   - hébergement « serverless » (Vercel…) : **Transaction pooler** (port 6543) ;
-   - exécuter `npm run db:migrate` depuis votre ordinateur : **Session pooler** (port 5432) — la connexion directe est en IPv6 seulement, ce qui échoue sur beaucoup de réseaux.
-4. Mettez l'adresse dans `DATABASE_URL` (hébergeur et `.env.local`). Les paramètres `sslmode` et `supa` sont ignorés : le code gère le SSL lui-même (connexion chiffrée ; ajoutez `DATABASE_CA` avec le certificat de votre projet pour aussi vérifier l'identité du serveur).
-5. **Intégration Vercel ↔ Supabase :** elle crée automatiquement `POSTGRES_URL` (pooler) et d'autres variables. Si `DATABASE_URL` n'est pas définie, l'application utilise `POSTGRES_URL` ; vous n'avez donc rien à copier à la main. N'ajoutez pas de préfixe personnalisé, sinon les variables changent de nom.
+### Mode API (aucune adresse Postgres à fournir)
+
+1. Dans Supabase : **SQL Editor → New query**, collez [`db/schema.sql`](db/schema.sql) et cliquez **Run**. Il crée les tables, les types de produits, active la sécurité par lignes (RLS) et crée la fonction `app_query` utilisée par l'API. Relançable sans danger : **refaites-le si vous aviez exécuté une version plus ancienne du script**.
+2. Variables d'environnement de l'hébergeur : `SUPABASE_URL` et `SUPABASE_SECRET_KEY` (la clé **secrète**, `sb_secret_…`). L'intégration Vercel ↔ Supabase les crée normalement. `SUPABASE_SERVICE_ROLE_KEY` (ancienne clé) est aussi acceptée. Il faut en plus `AUTH_SECRET` et `APP_URL`.
+3. Ouvrez `/api/health` : `{"ok":true,"mode":"api"}`.
+
+Comment ça marche : le site appelle `POST /rest/v1/rpc/app_query` avec la clé secrète. Cette fonction exécute **une seule** instruction SQL paramétrée (SELECT/INSERT/UPDATE/DELETE) ; elle est **réservée au rôle `service_role`** (les clés publiques sont refusées), refuse le DDL et les instructions multiples, et échappe les valeurs en un seul passage.
+
+À savoir :
+- La clé secrète ne doit **jamais** être publique (pas de préfixe `NEXT_PUBLIC_`, pas dans le dépôt, pas dans une conversation). Si elle fuit : supprimez-la dans Supabase (**Project Settings → API Keys**), créez-en une autre et mettez-la à jour chez l'hébergeur.
+- Chaque requête est un appel HTTP : un peu plus lent que la connexion directe.
+- Les changements de structure (DDL) passent par le SQL Editor ; `npm run db:migrate` demande un Postgres direct.
+- Testé avec un simulateur local de l'API Supabase (`npm run e2e:api`), **pas** contre un vrai projet Supabase.
+
+### Mode direct (alternative)
+
+Si `SUPABASE_URL`/clé secrète sont absentes, le site utilise `DATABASE_URL` (ou `POSTGRES_URL`) : adresse du **Transaction pooler** (port 6543) pour Vercel, **Session pooler** (port 5432) pour lancer `npm run db:migrate` depuis votre ordinateur. Le SSL est géré par le code (`DATABASE_CA` pour vérifier le certificat). `DB_MODE=api` ou `DB_MODE=pg` force un mode.
+
+Optionnel, pour voir le site rempli : exécutez [`db/demo-data.sql`](db/demo-data.sql) (90 promotions **fictives**, dates relatives). Pour les retirer : `DELETE FROM promotions WHERE is_demo;`
 
 Le plan gratuit de Supabase met le projet en pause après environ une semaine sans activité : il faut alors le réactiver depuis le tableau de bord.
-Ces étapes n'ont pas été testées contre un vrai projet Supabase ; le script a été validé sur Postgres local (deux exécutions de suite, sans erreur).
 
 ## Mise en ligne (guide — non testé sur ces plateformes)
 

@@ -2,7 +2,7 @@
 //   npm run collect            → sources réelles de collectors.config.json
 //   npm run collect -- --demo  → données fictives de démonstration
 import fs from "node:fs";
-import { pool } from "../lib/db";
+import { closeDb } from "../lib/db";
 import { ensureCategories, ingest } from "../lib/ingest";
 import { demoCollectors } from "../collectors/demo";
 import { jsonFeedCollector, type JsonFeedConfig } from "../collectors/json-feed";
@@ -34,5 +34,5 @@ for (const c of collectors) {
     console.error(`✘ ${c.establishment.name}:`, (e as Error).message);
   }
 }
-await pool.end();
+await closeDb();
 process.exit(failures ? 1 : 0);
