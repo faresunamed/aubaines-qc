@@ -31,6 +31,7 @@ if (flag("html")) {
 
 // Un secret GitHub absent arrive comme chaîne vide : on le traite comme « non défini ».
 const raw = process.env.AI_SOURCES_JSON?.trim() || (fs.existsSync("ai-sources.config.json") ? fs.readFileSync("ai-sources.config.json", "utf8") : "");
+console.log(`Version ${process.env.GITHUB_SHA?.slice(0, 7) ?? "locale"} · sources lues depuis : ${process.env.AI_SOURCES_JSON?.trim() ? "le secret AI_SOURCES_JSON" : raw ? "ai-sources.config.json" : "(aucune)"}`);
 if (!raw) { console.log("Aucune source. Créez ai-sources.config.json (voir ai-sources.config.example.json)."); process.exit(0); }
 const all: AiSourceConfig[] = JSON.parse(raw);
 const sources = all.filter((s) => s.authorized === true);
