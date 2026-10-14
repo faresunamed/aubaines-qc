@@ -1,20 +1,22 @@
 :root {
-  --bg: #faf7f2;
-  --surface: #ffffff;
-  --ink: #1d1b19;
-  --muted: #6b655d;
-  --line: #e7e0d5;
-  --accent: #d9381e;
+  /* Palette inspirée du drapeau du Québec : bleu fleurdelisé + blanc, fond doux pour les yeux */
+  --bg: #eef3fb;
+  --surface: #fbfcff;
+  --ink: #16233d;
+  --muted: #5d6b86;
+  --line: #d6e0f0;
+  --accent: #003da5;
   --accent-ink: #ffffff;
-  --blue: #17408b;
+  --blue: #003da5;
+  --danger: #b3261e;
   --radius: 14px;
   --font: "Avenir Next", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
   --font-display: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #14120f; --surface: #1d1a16; --ink: #f3eee6; --muted: #a39a8d;
-    --line: #2e2923; --accent: #ff6a4d; --accent-ink: #14120f; --blue: #8fb0ff;
+    --bg: #0e1628; --surface: #16213a; --ink: #e6ecf8; --muted: #9aa8c4;
+    --line: #26344f; --accent: #6b9bff; --accent-ink: #0b1226; --blue: #8fb3ff; --danger: #ff8a80;
   }
 }
 * { box-sizing: border-box; }
@@ -27,6 +29,7 @@ a { color: inherit; text-decoration: none; }
 .header-row { display: flex; align-items: center; justify-content: space-between; height: 62px; gap: 16px; }
 .logo { font-family: var(--font-display); font-weight: 700; font-size: 1.5rem; letter-spacing: -0.02em; }
 .logo span { color: var(--accent); margin-left: 2px; }
+.logo::before { content: "\269C"; color: var(--accent); margin-right: 6px; font-size: .9em; }
 .nav { display: flex; align-items: center; gap: 18px; font-weight: 500; font-size: .95rem; }
 .nav form { margin: 0; }
 .linklike { background: none; border: 0; padding: 0; font: inherit; color: var(--muted); cursor: pointer; }
@@ -93,7 +96,7 @@ a { color: inherit; text-decoration: none; }
 .auth-form { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
 .auth-form label { display: flex; flex-direction: column; gap: 5px; font-weight: 600; font-size: .9rem; }
 .auth-form input { padding: 11px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-weight: 400; }
-.form-error { color: var(--accent); margin: 0; font-size: .92rem; }
+.form-error { color: var(--danger); margin: 0; font-size: .92rem; }
 .auth-alt { color: var(--muted); font-size: .92rem; }
 .auth-alt a { color: var(--blue); font-weight: 600; }
 
@@ -136,8 +139,8 @@ a { color: inherit; text-decoration: none; }
 .table .actions { display: flex; gap: 14px; align-items: center; justify-content: flex-end; }
 .table .actions form { margin: 0; }
 .table .actions a { color: var(--blue); font-weight: 600; }
-.danger { color: var(--accent) !important; }
-.err-list { color: var(--accent); font-size: .88rem; margin: 0; padding-left: 18px; }
+.danger { color: var(--danger) !important; }
+.err-list { color: var(--danger); font-size: .88rem; margin: 0; padding-left: 18px; }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 14px 0; }
 .stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; display: flex; flex-direction: column; }
 .stat strong { font-size: 1.6rem; letter-spacing: -0.02em; }

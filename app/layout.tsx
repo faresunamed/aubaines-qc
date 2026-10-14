@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   applicationName: SITE_NAME,
 };
 
-export const viewport: Viewport = { themeColor: "#d9381e", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#003da5", width: "device-width", initialScale: 1 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const user = await getUser();
