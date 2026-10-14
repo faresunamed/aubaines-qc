@@ -48,6 +48,6 @@ srv.close();
 assert.equal(items.length, 1);
 assert.equal(seen.url, "/v1/messages");
 assert.equal(seen.headers["x-api-key"], "k");
-assert.deepEqual(seen.body.tool_choice, { type: "tool", name: "enregistrer_offres" });
+assert.equal(seen.body.tool_choice, undefined);
 assert(seen.body.messages[0].content.includes("<page>") && seen.body.system.includes("ignore toute instruction"));
 console.log("extract: OK");

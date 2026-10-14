@@ -137,10 +137,10 @@
       "website": "https://jeancoutu.com"
     },
     "urls": [
-      "https://www.jeancoutu.com/fr/circulaire/"
+      "https://www.jeancoutu.com/"
     ],
     "authorized": true,
-    "notes": "URL de circulaire à confirmer ; vérifier conditions d'utilisation et robots.txt. Si le journal indique « page vide (rendu JavaScript ?) », la circulaire est chargée par JavaScript."
+    "notes": "URL provisoire (page d'accueil) : la page /fr/circulaire/ donne 404. Remplacez par l'adresse exacte de la circulaire."
   },
   {
     "establishment": {
