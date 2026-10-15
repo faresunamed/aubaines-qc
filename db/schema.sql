@@ -178,6 +178,17 @@ CREATE TABLE IF NOT EXISTS shopping_prefs (
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Adresse (facultative) et position de départ, + cache des recherches de succursales.
+ALTER TABLE shopping_prefs ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE shopping_prefs ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION;
+ALTER TABLE shopping_prefs ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION;
+ALTER TABLE shopping_prefs ADD COLUMN IF NOT EXISTS geo_precise BOOLEAN NOT NULL DEFAULT FALSE;
+CREATE TABLE IF NOT EXISTS place_cache (
+  key        TEXT PRIMARY KEY,
+  data       JSONB NOT NULL,
+  fetched_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- ===== Sécurité (important sur Supabase) =====
 -- Supabase expose les tables du schéma « public » via une API REST publique
 -- (clé « anon »). Le site se connecte directement à Postgres, donc on ferme
@@ -195,6 +206,7 @@ ALTER TABLE merchant_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE alerts            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE shopping_items    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE shopping_prefs    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE place_cache       ENABLE ROW LEVEL SECURITY;
 
 DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN

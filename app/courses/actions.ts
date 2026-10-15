@@ -6,6 +6,7 @@ import { query } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { MAX_ITEMS } from "@/lib/shopping-db";
 import { MODES } from "@/lib/shopping";
+import { geocode } from "@/lib/places";
 import { normalizePostal, zoneFromPostal, zoneBySlug } from "@/lib/zones";
 
 export async function addItem(form: FormData): Promise<void> {
@@ -43,15 +44,23 @@ export async function savePrefs(form: FormData): Promise<void> {
   const chosen = String(form.get("zone") ?? "");
   // « auto » (ou valeur inconnue) = zone déduite du code postal
   const zone = chosen !== "auto" && zoneBySlug(chosen) ? chosen : zoneFromPostal(postal);
+  const address = String(form.get("address") ?? "").trim().replace(/\s+/g, " ").slice(0, 120) || null;
+  // Position : adresse/code postal géocodés (OpenStreetMap) ; sinon centre de la zone (approximatif)
+  let lat: number | null = null, lng: number | null = null, precise = false;
+  if (address || postal) {
+    const c = await geocode(address, postal);
+    if (c) { lat = c.lat; lng = c.lng; precise = !!address; }
+  }
   const mode = MODES.some((m) => m.value === form.get("mode")) ? String(form.get("mode")) : "voiture";
   const multi = form.get("multi") === "on";
   const maxStops = Math.min(4, Math.max(1, Math.floor(Number(form.get("max")) || 3)));
   await query(
-    `INSERT INTO shopping_prefs (user_id, postal_code, zone_slug, mode, multi_store, max_stops, updated_at)
-     VALUES ($1,$2,$3,$4,$5,$6, now())
+    `INSERT INTO shopping_prefs (user_id, postal_code, zone_slug, mode, multi_store, max_stops, address, lat, lng, geo_precise, updated_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10, now())
      ON CONFLICT (user_id) DO UPDATE SET postal_code = EXCLUDED.postal_code, zone_slug = EXCLUDED.zone_slug,
-       mode = EXCLUDED.mode, multi_store = EXCLUDED.multi_store, max_stops = EXCLUDED.max_stops, updated_at = now()`,
-    [user.id, postal, zone, mode, multi, maxStops],
+       mode = EXCLUDED.mode, multi_store = EXCLUDED.multi_store, max_stops = EXCLUDED.max_stops,
+       address = EXCLUDED.address, lat = EXCLUDED.lat, lng = EXCLUDED.lng, geo_precise = EXCLUDED.geo_precise, updated_at = now()`,
+    [user.id, postal, zone, mode, multi, maxStops, address, lat, lng, precise],
   );
   revalidatePath("/courses");
   redirect("/courses");

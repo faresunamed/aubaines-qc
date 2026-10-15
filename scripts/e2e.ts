@@ -255,6 +255,16 @@ check("zone « automatique » : H2X → Montréal", (await query("SELECT 1 FROM 
 r = await c.get("/courses");
 check("liste de courses : itinéraires affichés avec total, durée et lien", r.status === 200 && r.text.includes("Le moins cher") && r.text.includes("estimé") && r.text.includes("google.com/maps/dir") && /\d+ min|\d h \d\d/.test(r.text), r.text.replace(/<[^>]+>/g, " ").slice(0, 400));
 check("liste de courses : au moins un plan (les plans identiques sont fusionnés)", (r.text.match(/class="plan"/g) ?? []).length >= 1);
+if (process.env.FAKE_OSM === "1") {
+  r = await c.submit("/courses", 'name="postal"', { postal: "h2x1a1", address: "99 rue Fictive", zone: "auto", mode: "voiture", max: "3", multi: "on" });
+  check("adresse géocodée et enregistrée (position précise)", (await query("SELECT 1 FROM shopping_prefs p JOIN users u ON u.id=p.user_id WHERE u.email=$1 AND p.address='99 rue Fictive' AND p.geo_precise AND p.lat IS NOT NULL", [C])).length === 1);
+  r = await c.get("/courses");
+  const plain = r.text.replace(/<!--.*?-->/g, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+  check("succursales les plus proches affichées (nom, adresse, distance)", plain.includes("Test — 99 rue Fictive") && /à [\d,\u00a0]+ km/.test(plain), plain.slice(plain.indexOf("📍"), plain.indexOf("📍") + 200));
+  check("lien Google Maps avec l'adresse de la succursale", r.text.includes("99%20rue%20Fictive") || r.text.includes("99+rue+Fictive"), (r.text.match(/google\.com\/maps\/dir[^"]*/) ?? [""])[0]);
+  check("cache des succursales rempli", Number((await query("SELECT count(*)::int n FROM place_cache"))[0].n) >= 1);
+  await query("DELETE FROM place_cache");
+}
 r = await c.get("/?q=poulet");
 r = await c.submit("/?q=poulet", 'class="listbtn', {});
 const fromCard = await query("SELECT 1 FROM shopping_items si JOIN users u ON u.id=si.user_id WHERE u.email=$1 AND si.promotion_id IS NOT NULL", [C]);

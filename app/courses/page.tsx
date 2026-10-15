@@ -1,5 +1,6 @@
 import { requireUser } from "@/lib/auth";
-import { MODES, buildPlans, type Plan } from "@/lib/shopping";
+import { MODES, buildPlans, refinePlan, type HomeInfo, type Plan } from "@/lib/shopping";
+import { branchesNear, nearestBranch } from "@/lib/places";
 import { getItems, getPrefs, loadOffers, MAX_ITEMS } from "@/lib/shopping-db";
 import { ZONES, zoneBySlug, zoneFromPostal } from "@/lib/zones";
 import { addItem, clearList, removeItem, savePrefs } from "./actions";
@@ -15,7 +16,7 @@ const ERRORS: Record<string, string> = {
   postal: "Code postal invalide. Exemple : H2X 1A1 (Québec seulement).",
 };
 
-function PlanCard({ plan, total, mode }: { plan: Plan; total: number; mode: string }) {
+function PlanCard({ plan, total, mode, home }: { plan: Plan; total: number; mode: string; home: HomeInfo | null }) {
   const covered = total - plan.uncovered.length;
   return (
     <article className="plan">
@@ -31,6 +32,13 @@ function PlanCard({ plan, total, mode }: { plan: Plan; total: number; mode: stri
         {plan.stops.map((s) => (
           <li key={s.establishment_id}>
             <p className="stop-head"><strong>{s.name}</strong><span>{$(s.subtotal)}</span></p>
+            {s.branch ? (
+              <p className="stop-branch">
+                📍 {s.branch.name}{s.branch.address ? ` — ${s.branch.address}` : ""} · à {s.branch.km.toLocaleString("fr-CA", { maximumFractionDigits: 1 })} km{home && !home.precise ? " (approx.)" : ""}
+              </p>
+            ) : plan.located !== undefined ? (
+              <p className="stop-branch muted">Succursale non localisée : distance estimée pour la zone.</p>
+            ) : null}
             <ul>
               {s.lines.map((l) => (
                 <li key={l.item.id}>
@@ -50,6 +58,9 @@ function PlanCard({ plan, total, mode }: { plan: Plan; total: number; mode: stri
           <a className="btn btn-primary btn-sm" href={plan.mapsUrl} target="_blank" rel="noopener noreferrer">Ouvrir l'itinéraire dans Google Maps</a>
         </p>
       )}
+      {plan.located && home && !home.precise && (
+        <p className="muted small">Position approximative (centre de la zone) : ajoutez votre adresse pour trouver la succursale la plus proche de chez vous.</p>
+      )}
       {mode === "transport" && <p className="muted small">Google Maps ignore les étapes intermédiaires en transport en commun : ajoutez-les une à une.</p>}
     </article>
   );
@@ -64,11 +75,29 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ e
 
   let plans: Plan[] = [];
   let unmatched = items.slice(0, 0);
+  let home: HomeInfo | null = null;
   if (ready && items.length) {
     const offers = await loadOffers(zone);
     ({ plans, unmatched } = buildPlans(items, offers, {
       zone, mode: prefs.mode, maxStops: prefs.max_stops, multiStore: prefs.multi_store, postal: prefs.postal_code,
     }));
+    // Succursales les plus proches (OpenStreetMap) : en cas d'échec, on garde les estimations de la zone
+    const c = zoneBySlug(zone);
+    if (prefs.lat != null && prefs.lng != null) {
+      home = { coord: { lat: prefs.lat, lng: prefs.lng }, label: prefs.address ? `${prefs.address} ${prefs.postal_code ?? ""}`.trim() : `${prefs.lat},${prefs.lng}`, precise: prefs.geo_precise };
+    } else if (c?.lat != null && c?.lng != null) {
+      home = { coord: { lat: c.lat, lng: c.lng }, label: `${prefs.postal_code}, Québec`, precise: false };
+    }
+    if (home && plans.length) {
+      const h = home;
+      const names = [...new Set(plans.flatMap((p) => p.stops.map((s) => s.name)))];
+      const found = new Map<string, Awaited<ReturnType<typeof nearestBranch>>>();
+      await Promise.all(names.map(async (n) => {
+        const list = await branchesNear(n, h.coord, 15).catch(() => []);
+        found.set(n, nearestBranch(list, h.coord));
+      }));
+      plans = plans.map((p) => refinePlan(p, h, found, prefs.mode, zone, prefs.postal_code));
+    }
   }
 
   return (
@@ -111,6 +140,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ e
             <label>Code postal (Québec)
               <input name="postal" defaultValue={prefs.postal_code ?? ""} placeholder="H2X 1A1" autoComplete="postal-code" maxLength={8} />
             </label>
+            <label>Adresse (facultatif)
+              <input name="address" defaultValue={prefs.address ?? ""} placeholder="123 rue Saint-Denis, Montréal" autoComplete="street-address" maxLength={120} />
+              <small>Sert à trouver les succursales les plus proches. Gardée dans votre compte seulement.</small>
+            </label>
             <label>Zone de prix
               <select name="zone" defaultValue={zone === zoneFromPostal(prefs.postal_code) ? "auto" : zone}>
                 <option value="auto">Automatique ({zoneBySlug(zoneFromPostal(prefs.postal_code))?.name})</option>
@@ -144,7 +177,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ e
       ) : (
         <>
           <div className="plans">
-            {plans.map((p) => <PlanCard key={p.key} plan={p} total={items.length} mode={prefs.mode} />)}
+            {plans.map((p) => <PlanCard key={p.key} plan={p} total={items.length} mode={prefs.mode} home={home} />)}
           </div>
           {unmatched.length > 0 && (
             <p className="muted">Aucune offre trouvée pour : {unmatched.map((u) => u.text).join(", ")}.</p>

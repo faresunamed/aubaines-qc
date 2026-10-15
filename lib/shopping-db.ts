@@ -1,13 +1,17 @@
 import { query } from "./db";
 import { offersForZone, type ListItem, type Offer } from "./shopping";
 
-export type Prefs = { postal_code: string | null; zone_slug: string | null; mode: string; multi_store: boolean; max_stops: number };
+export type Prefs = {
+  postal_code: string | null; zone_slug: string | null; mode: string; multi_store: boolean; max_stops: number;
+  address: string | null; lat: number | null; lng: number | null; geo_precise: boolean;
+};
 export const MAX_ITEMS = 40;
 
 export async function getPrefs(userId: number): Promise<Prefs> {
   const [p] = await query<Prefs>(
-    "SELECT postal_code, zone_slug, mode, multi_store, max_stops FROM shopping_prefs WHERE user_id = $1", [userId]);
-  return p ?? { postal_code: null, zone_slug: null, mode: "voiture", multi_store: true, max_stops: 3 };
+    "SELECT postal_code, zone_slug, mode, multi_store, max_stops, address, lat, lng, geo_precise FROM shopping_prefs WHERE user_id = $1", [userId]);
+  if (!p) return { postal_code: null, zone_slug: null, mode: "voiture", multi_store: true, max_stops: 3, address: null, lat: null, lng: null, geo_precise: false };
+  return { ...p, lat: p.lat == null ? null : Number(p.lat), lng: p.lng == null ? null : Number(p.lng) };
 }
 
 export async function getItems(userId: number): Promise<ListItem[]> {

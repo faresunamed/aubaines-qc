@@ -234,3 +234,4 @@ code { background: var(--line); padding: 1px 6px; border-radius: 5px; font-size:
 .small { font-size: .82rem; }
 @media (max-width: 820px) { .courses-grid { grid-template-columns: minmax(0, 1fr); } }
 .courses-grid > * { min-width: 0; }
+.stop-branch { margin: 0 0 6px; font-size: .88rem; color: var(--ink); } .stop-branch.muted { color: var(--muted, #5b6b88); }

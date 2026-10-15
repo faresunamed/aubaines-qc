@@ -3,18 +3,18 @@
  * deux premiers caractères du code postal (ex. H2 → Montréal). L'utilisateur peut la corriger.
  * legKm  = distance moyenne maison ↔ magasin ; betweenKm = distance moyenne entre deux magasins.
  */
-export type Zone = { slug: string; name: string; legKm: number; betweenKm: number };
+export type Zone = { slug: string; name: string; legKm: number; betweenKm: number; lat?: number; lng?: number };
 
 export const ZONES: Zone[] = [
-  { slug: "montreal", name: "Montréal", legKm: 3, betweenKm: 3 },
-  { slug: "laval", name: "Laval", legKm: 4, betweenKm: 4 },
-  { slug: "rive-sud", name: "Rive-Sud de Montréal", legKm: 4.5, betweenKm: 4.5 },
-  { slug: "quebec", name: "Québec", legKm: 4, betweenKm: 4 },
-  { slug: "levis", name: "Lévis", legKm: 5, betweenKm: 5 },
-  { slug: "gatineau", name: "Gatineau / Outaouais", legKm: 5, betweenKm: 5 },
-  { slug: "sherbrooke", name: "Sherbrooke", legKm: 4, betweenKm: 4 },
-  { slug: "trois-rivieres", name: "Trois-Rivières", legKm: 4, betweenKm: 4 },
-  { slug: "saguenay", name: "Saguenay", legKm: 5, betweenKm: 5 },
+  { lat: 45.5017, lng: -73.5673, slug: "montreal", name: "Montréal", legKm: 3, betweenKm: 3 },
+  { lat: 45.6066, lng: -73.7124, slug: "laval", name: "Laval", legKm: 4, betweenKm: 4 },
+  { lat: 45.5312, lng: -73.5181, slug: "rive-sud", name: "Rive-Sud de Montréal", legKm: 4.5, betweenKm: 4.5 },
+  { lat: 46.8139, lng: -71.208, slug: "quebec", name: "Québec", legKm: 4, betweenKm: 4 },
+  { lat: 46.8032, lng: -71.1779, slug: "levis", name: "Lévis", legKm: 5, betweenKm: 5 },
+  { lat: 45.4765, lng: -75.7013, slug: "gatineau", name: "Gatineau / Outaouais", legKm: 5, betweenKm: 5 },
+  { lat: 45.4042, lng: -71.8929, slug: "sherbrooke", name: "Sherbrooke", legKm: 4, betweenKm: 4 },
+  { lat: 46.3432, lng: -72.5477, slug: "trois-rivieres", name: "Trois-Rivières", legKm: 4, betweenKm: 4 },
+  { lat: 48.428, lng: -71.068, slug: "saguenay", name: "Saguenay", legKm: 5, betweenKm: 5 },
   { slug: "autre", name: "Autre région du Québec", legKm: 8, betweenKm: 8 },
 ];
 

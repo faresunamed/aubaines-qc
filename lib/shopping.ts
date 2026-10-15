@@ -1,5 +1,6 @@
 import { normalize } from "./text";
 import { zoneBySlug } from "./zones";
+import { haversineKm, type Branch, type Coord } from "./places";
 
 export type Offer = {
   id: number;
@@ -77,7 +78,7 @@ export function matchItem(item: ListItem, offers: Offer[]): Map<number, Offer> {
 }
 
 export type Line = { item: ListItem; offer: Offer; lineTotal: number };
-export type Stop = { establishment_id: number; name: string; lines: Line[]; subtotal: number };
+export type Stop = { establishment_id: number; name: string; lines: Line[]; subtotal: number; branch?: (Branch & { km: number }) | null };
 export type Plan = {
   key: string;
   labels: string[];
@@ -91,6 +92,8 @@ export type Plan = {
   totalMin: number;
   distanceKm: number;
   mapsUrl: string | null;
+  /** true quand la durée et la distance viennent de vraies succursales localisées. */
+  located?: boolean;
 };
 
 export const SHOP_BASE_MIN = 8;
@@ -144,15 +147,13 @@ function subsets<T>(arr: T[], maxSize: number): T[][] {
   return res;
 }
 
-export function mapsLink(postal: string | null, mode: string, stopNames: string[]): string | null {
-  if (!postal || stopNames.length === 0) return null;
-  const q = (s: string) => encodeURIComponent(s);
-  const place = `${postal}, Québec`;
-  const wp = stopNames.slice(0, -1).map((n) => `${n} ${postal}`);
-  const dest = `${stopNames[stopNames.length - 1]} ${postal}`;
-  // Aller : maison → commerces ; le retour se fait depuis la dernière étape.
-  let url = `https://www.google.com/maps/dir/?api=1&origin=${q(place)}&destination=${q(dest)}&travelmode=${modeInfo(mode).gmaps}`;
-  if (wp.length) url += `&waypoints=${q(wp.join("|"))}`;
+/** places = texte de chaque étape (nom + adresse de la succursale, sinon « Commerce code-postal »). */
+export function mapsLink(origin: string | null, mode: string, places: string[]): string | null {
+  if (!origin || places.length === 0) return null;
+  const q = (x: string) => encodeURIComponent(x);
+  const dest = places[places.length - 1];
+  let url = `https://www.google.com/maps/dir/?api=1&origin=${q(origin)}&destination=${q(dest)}&travelmode=${modeInfo(mode).gmaps}`;
+  if (places.length > 1) url += `&waypoints=${q(places.slice(0, -1).join("|"))}`;
   return url;
 }
 
@@ -220,8 +221,53 @@ export function buildPlans(items: ListItem[], offers: Offer[], opt: PlanOptions)
       savings: round2(Math.max(0, ev.regular - ev.cost)),
       travelMin: Math.round(ev.travelMin), shopMin: Math.round(ev.shopMin), totalMin: Math.round(ev.travelMin + ev.shopMin),
       distanceKm: Math.round(ev.km * 10) / 10,
-      mapsUrl: mapsLink(opt.postal, opt.mode, stops.map((s) => s.name)),
+      mapsUrl: mapsLink(opt.postal ? `${opt.postal}, Québec` : null, opt.mode, stops.map((s) => `${s.name} ${opt.postal}`)),
     };
   });
   return { plans, unmatched };
+}
+
+export type HomeInfo = { coord: Coord; label: string; precise: boolean };
+const ROAD = 1.3; // la route est ~30 % plus longue qu'à vol d'oiseau
+
+/**
+ * Remplace les estimations moyennes par les vraies succursales : ordre des arrêts par plus proche voisin,
+ * distances à vol d'oiseau × 1,3, durée recalculée, itinéraire Maps avec adresses. Les arrêts sans succursale
+ * trouvée gardent l'estimation de la zone.
+ */
+export function refinePlan(plan: Plan, home: HomeInfo, branches: Map<string, (Branch & { km: number }) | null>, mode: string, zone: string, postal: string | null): Plan {
+  const found = plan.stops.filter((s) => branches.get(s.name));
+  if (found.length === 0) return plan;
+  const z = zoneBySlug(zone) ?? zoneBySlug("autre")!;
+  const mi = modeInfo(mode);
+  const withB = plan.stops.map((s) => ({ ...s, branch: branches.get(s.name) ?? null }));
+  // plus proche voisin depuis la maison
+  const remaining = [...withB.filter((s) => s.branch)];
+  const ordered: typeof withB = [];
+  let cur: Coord = home.coord;
+  while (remaining.length) {
+    remaining.sort((a, b) => haversineKm(cur, a.branch!) - haversineKm(cur, b.branch!));
+    const next = remaining.shift()!;
+    ordered.push(next);
+    cur = next.branch!;
+  }
+  const unlocated = withB.filter((s) => !s.branch);
+  let km = 0;
+  let prev: Coord = home.coord;
+  for (const s of ordered) { km += haversineKm(prev, s.branch!) * ROAD; prev = s.branch!; }
+  km += haversineKm(prev, home.coord) * ROAD;
+  km += unlocated.length * (z.legKm + z.betweenKm); // arrêts non localisés : estimation de zone
+  const n = withB.length;
+  const travelMin = (km / mi.kmh) * 60 + n * mi.overheadMin;
+  const places = [...ordered.map((s) => `${s.branch!.name} ${s.branch!.address ?? `${s.branch!.lat},${s.branch!.lng}`}`), ...unlocated.map((s) => `${s.name} ${postal ?? ""}`.trim())];
+  const origin = home.precise ? home.label : postal ? `${postal}, Québec` : home.label;
+  return {
+    ...plan,
+    stops: [...ordered, ...unlocated],
+    travelMin: Math.round(travelMin),
+    totalMin: Math.round(travelMin + plan.shopMin),
+    distanceKm: Math.round(km * 10) / 10,
+    mapsUrl: mapsLink(origin, mode, places),
+    located: unlocated.length === 0,
+  };
 }

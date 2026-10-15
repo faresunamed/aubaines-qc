@@ -107,9 +107,10 @@ Limites : les pages qui s'affichent uniquement par JavaScript (circulaires inter
 Page `/courses` (connecté). Le moteur (`lib/shopping.ts`, testé par `npm test`) apparie chaque article aux offres publiées de la zone, puis compare des combinaisons de 1 à 4 commerces :
 - **prix** : somme des offres les moins chères retenues (les articles sans offre ne sont pas comptés et sont listés) ;
 - **durée** : trajet (distances moyennes par zone × vitesse du mode) + magasinage (8 min par commerce + 1,5 min par article) — des **estimations**, pas un calcul d'itinéraire réel ;
-- **itinéraire** : lien Google Maps (départ = code postal, étapes = noms des commerces).
+- **itinéraire** : lien Google Maps (départ = adresse ou code postal, étapes = succursales).
+- **succursales les plus proches** (`lib/places.ts`) : l'adresse facultative est géocodée (Nominatim/OpenStreetMap), puis la succursale la plus proche de chaque commerce est cherchée (Overpass, rayon 15 km, cache 7 jours dans `place_cache`). Les arrêts sont ordonnés du plus proche au plus loin, distance = vol d'oiseau × 1,3, durée recalculée, et le lien Maps contient nom + adresse de chaque succursale. Sans adresse : centre de la zone (« position approximative »). Si OSM ne répond pas ou ne connaît pas la succursale, on revient aux estimations. Les codes postaux canadiens sont mal couverts par OSM : l'adresse donne de meilleurs résultats. Variables : `NOMINATIM_URL`, `OVERPASS_URL`, `PLACES_OFFLINE=1`. Le service public OSM est limité (usage modéré) ; pour un fort trafic, héberger sa propre instance. Test e2e : `scripts/fake-osm.ts` + `FAKE_OSM=1 npm run e2e`.
 Les zones se déduisent du code postal (`lib/zones.ts`) ; `promotions.zone_slug` permet des prix propres à une zone (NULL = partout). La collecte automatique de prix par zone n'est pas encore faite : elle demande de choisir le magasin sur le site de chaque chaîne.
-Pour la production Supabase : relancer `db/schema.sql` (nouvelles tables `shopping_items`, `shopping_prefs`).
+Pour la production Supabase : relancer `db/schema.sql` (nouvelles tables `shopping_items`, `shopping_prefs`, `place_cache`).
 
 ## Classification
 
