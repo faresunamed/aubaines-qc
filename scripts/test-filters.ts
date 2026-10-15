@@ -27,6 +27,30 @@ const byWord = await searchPromotions({ q: word });
 check(`recherche « ${word} » : trouve aussi toute la catégorie`, byWord.rows.some((r) => r.category_slug === cat.slug), `${byWord.total}`);
 const plural = await searchPromotions({ q: word.replace(/s$/, "") + "s" });
 check("recherche au pluriel/singulier équivalente", plural.total >= byWord.total || word.length <= 3, `${plural.total} vs ${byWord.total}`);
+// Navigation croisée : chaque lien proposé (compteur > 0) doit donner exactement ce compteur, jamais 0
+{
+  let bad = 0, tested = 0;
+  for (const e of facets.establishments.filter((x) => x.n > 0).slice(0, 6)) {
+    const fc = await getFacets({ etablissement: e.slug });
+    for (const c of fc.categories.filter((x) => x.n > 0)) {
+      tested++;
+      const r = await searchPromotions({ etablissement: e.slug, categorie: c.slug });
+      if (r.total !== c.n) bad++;
+    }
+  }
+  for (const c of facets.categories.filter((x) => x.n > 0).slice(0, 6)) {
+    const fe = await getFacets({ categorie: c.slug });
+    for (const e of fe.establishments.filter((x) => x.n > 0)) {
+      tested++;
+      const r = await searchPromotions({ etablissement: e.slug, categorie: c.slug });
+      if (r.total !== e.n) bad++;
+    }
+  }
+  check("navigation croisée : les compteurs affichés = résultats (jamais 0)", tested > 0 && bad === 0, `${bad} écarts sur ${tested}`);
+  const withQ = await getFacets({ q: word });
+  const sum = withQ.categories.reduce((a, c) => a + c.n, 0);
+  check("compteurs avec recherche : somme = total de la recherche", sum === (await searchPromotions({ q: word })).total, `${sum}`);
+}
 const byEst = await searchPromotions({ etablissement: est.slug });
 check(`établissement « ${est.slug} » : tous les résultats de ce commerce`, byEst.rows.length > 0 && byEst.rows.every((r) => r.establishment_slug === est.slug));
 check("établissement : total = compteur de la facette", byEst.total === est.n, `${byEst.total} vs ${est.n}`);

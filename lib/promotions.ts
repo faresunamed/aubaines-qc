@@ -91,24 +91,49 @@ export async function searchPromotions(f: Filters, userId?: number) {
   return { rows, total: Number(count), page };
 }
 
-export async function getFacets() {
-  const categories = await query<{
-    slug: string; name: string; group_name: string; n: number;
-  }>(
-    `SELECT c.slug, c.name, c.group_name, count(p.id)::int AS n
+/** Compteurs des listes : tiennent compte de la recherche et de l'AUTRE filtre actif, pour qu'un clic ne mène jamais à 0 résultat. */
+export async function getFacets(f: Filters = {}) {
+  const base = (extra: string[], params: unknown[]) => {
+    if (f.q) {
+      for (const raw of normalize(f.q).split(" ").filter(Boolean)) {
+        const word = raw.length > 3 ? raw.replace(/(s|x)$/, "") : raw;
+        params.push(`%${word}%`);
+        extra.push(`(p.search_text ILIKE $${params.length} OR c2.slug ILIKE $${params.length})`);
+      }
+    }
+  };
+  const catParams: unknown[] = [];
+  const catWhere: string[] = [];
+  base(catWhere, catParams);
+  if (f.etablissement) { catParams.push(f.etablissement); catWhere.push(`e2.slug = $${catParams.length}`); }
+  const categories = await query<{ slug: string; name: string; group_name: string; n: number }>(
+    `SELECT c.slug, c.name, c.group_name, count(x.id)::int AS n
      FROM categories c
-     LEFT JOIN promotions p ON p.category_id = c.id AND p.status = 'published'
-       AND (p.valid_to IS NULL OR p.valid_to >= CURRENT_DATE)
+     LEFT JOIN (
+       SELECT p.id, p.category_id FROM promotions p
+       JOIN categories c2 ON c2.id = p.category_id
+       JOIN establishments e2 ON e2.id = p.establishment_id
+       WHERE p.status = 'published' AND (p.valid_to IS NULL OR p.valid_to >= CURRENT_DATE)
+       ${catWhere.length ? "AND " + catWhere.join(" AND ") : ""}
+     ) x ON x.category_id = c.id
      GROUP BY c.id ORDER BY c.sort`,
+    catParams,
   );
-  const establishments = await query<{
-    slug: string; name: string; kind: string; n: number;
-  }>(
-    `SELECT e.slug, e.name, e.kind, count(p.id)::int AS n
+  const estParams: unknown[] = [];
+  const estWhere: string[] = [];
+  base(estWhere, estParams);
+  if (f.categorie) { estParams.push(f.categorie); estWhere.push(`c2.slug = $${estParams.length}`); }
+  const establishments = await query<{ slug: string; name: string; kind: string; n: number }>(
+    `SELECT e.slug, e.name, e.kind, count(x.id)::int AS n
      FROM establishments e
-     LEFT JOIN promotions p ON p.establishment_id = e.id AND p.status = 'published'
-       AND (p.valid_to IS NULL OR p.valid_to >= CURRENT_DATE)
+     LEFT JOIN (
+       SELECT p.id, p.establishment_id FROM promotions p
+       JOIN categories c2 ON c2.id = p.category_id
+       WHERE p.status = 'published' AND (p.valid_to IS NULL OR p.valid_to >= CURRENT_DATE)
+       ${estWhere.length ? "AND " + estWhere.join(" AND ") : ""}
+     ) x ON x.establishment_id = e.id
      GROUP BY e.id ORDER BY e.name`,
+    estParams,
   );
   return { categories, establishments };
 }

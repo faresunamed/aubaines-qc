@@ -24,7 +24,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
   const user = await getUser();
   const [{ rows, total, page }, facets, demo] = await Promise.all([
     searchPromotions(f, user?.id),
-    getFacets(),
+    getFacets(f),
     hasDemoData(),
   ]);
 
@@ -63,7 +63,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
           <button className="btn btn-light">Rechercher</button>
         </form>
         <nav className="quick" aria-label="Types de produits">
-          {facets.categories.filter((c) => c.n > 0).slice(0, 9).map((c) => (
+          {facets.categories.filter((c) => c.n > 0 || c.slug === f.categorie).slice(0, 9).map((c) => (
             <Link key={c.slug} href={href({ categorie: c.slug, page: 1 })} className={f.categorie === c.slug ? "active" : ""}>
               <span aria-hidden="true">{iconFor(c.slug)}</span> {c.name}
             </Link>
@@ -80,7 +80,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
                 Tous
               </Link>
             </li>
-            {facets.establishments.map((e) => (
+            {facets.establishments.filter((e) => e.n > 0 || e.slug === f.etablissement).map((e) => (
               <li key={e.slug}>
                 <Link href={href({ etablissement: e.slug, page: 1 })} className={f.etablissement === e.slug ? "active" : ""}>
                   {e.name} <small>{e.n}</small>
@@ -98,7 +98,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
             </li>
           </ul>
           {CATEGORY_GROUPS.map((g) => {
-            const cats = facets.categories.filter((c) => c.group_name === g && c.n > 0);
+            const cats = facets.categories.filter((c) => c.group_name === g && (c.n > 0 || c.slug === f.categorie));
             if (!cats.length) return null;
             return (
               <div key={g}>
@@ -136,7 +136,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
           </div>
 
           {rows.length === 0 ? (
-            <p className="empty">Aucune promotion ne correspond à votre recherche.</p>
+            <p className="empty">
+              Aucune promotion ne correspond à ces filtres.{" "}
+              <Link href="/">Effacer tous les filtres</Link>
+              {(f.categorie || f.etablissement) && f.q ? <> · <Link href={href({ q: undefined, page: 1 })}>Effacer la recherche</Link></> : null}
+            </p>
           ) : (
             <div className="grid">
               {rows.map((p) => (
