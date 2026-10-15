@@ -74,9 +74,11 @@ const A = "e2e-a@example.com", B = "e2e-b@example.com", C = "e2e-admin@example.c
 
 // ---------- 1. inscription ----------
 const a = new Client();
-let r = await a.submit("/inscription", 'name="terms"', { name: "Alice", email: A, password: PASS });
+let r = await a.submit("/inscription", 'name="terms"', { name: "Alice", email: A, password: PASS, password2: PASS });
 check("inscription refusée sans acceptation des conditions", r.text.includes("accepter les conditions"), r.text.slice(0, 200));
-r = await a.submit("/inscription", 'name="terms"', { name: "Alice", email: A, password: PASS, terms: "on" });
+r = await a.submit("/inscription", 'name="terms"', { name: "Alice", email: A, password: PASS, password2: PASS + "x", terms: "on" });
+check("inscription refusée si la confirmation du mot de passe diffère", r.text.includes("pas identiques") && !a.jar.has("session"), r.text.slice(0, 200));
+r = await a.submit("/inscription", 'name="terms"', { name: "Alice", email: A, password: PASS, password2: PASS, terms: "on" });
 check("inscription réussie (redirection + cookie de session)", r.status === 303 && a.jar.has("session"), `${r.status} ${r.location}`);
 
 // ---------- 2. vérification du courriel ----------
@@ -103,9 +105,9 @@ mail = await mailTo(A, "%Réinitialisation%");
 const rlink = mail && linkIn(mail.body, "/reinitialiser");
 check("courriel de réinitialisation envoyé", !!rlink);
 if (rlink) {
-  r = await anon.submit(rlink, 'name="token"', { password: "court" });
+  r = await anon.submit(rlink, 'name="token"', { password: "court", password2: "court" });
   check("nouveau mot de passe trop court refusé", r.text.includes("au moins 8"));
-  r = await anon.submit(rlink, 'name="token"', { password: PASS + "-nouveau" });
+  r = await anon.submit(rlink, 'name="token"', { password: PASS + "-nouveau", password2: PASS + "-nouveau" });
   check("réinitialisation réussie + connexion", r.status === 303 && anon.jar.has("session"), `${r.status}`);
   r = await oldSession.get("/favoris");
   check("anciennes sessions révoquées après réinitialisation", r.status === 307 || r.location.includes("/connexion"), `${r.status} ${r.location}`);
@@ -125,7 +127,7 @@ check("alerte en base", (await query("SELECT 1 FROM alerts a JOIN users u ON u.i
 
 // ---------- 5. commerçant ----------
 const b = new Client();
-await b.submit("/inscription", 'name="terms"', { name: "Bob", email: B, password: PASS, terms: "on" });
+await b.submit("/inscription", 'name="terms"', { name: "Bob", email: B, password: PASS, password2: PASS, terms: "on" });
 r = await b.submit("/commercant", 'name="business"', { business: "E2E Marché", website: "https://exemple.ca" });
 check("demande commerçant refusée si courriel non confirmé", r.text.includes("Confirmez") || r.status !== 303);
 await query("UPDATE users SET email_verified_at = now() WHERE email = $1", [B]);
@@ -135,7 +137,7 @@ r = await b.get("/commercant/offres");
 check("accès aux offres refusé avant approbation", r.status === 307 && r.location.includes("/commercant"), `${r.status} ${r.location}`);
 
 const c = new Client();
-await c.submit("/inscription", 'name="terms"', { name: "Chef", email: C, password: PASS, terms: "on" });
+await c.submit("/inscription", 'name="terms"', { name: "Chef", email: C, password: PASS, password2: PASS, terms: "on" });
 r = await c.get("/admin");
 check("/admin refusé à un utilisateur ordinaire", r.status === 307, `${r.status}`);
 await query("UPDATE users SET role='admin', email_verified_at = now() WHERE email = $1", [C]);

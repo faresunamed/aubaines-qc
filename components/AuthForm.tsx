@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import type { FormState } from "@/app/actions";
+import PasswordField from "./PasswordField";
 
 type Mode = "login" | "register" | "forgot" | "reset";
 
@@ -39,16 +40,15 @@ export default function AuthForm({
         </label>
       )}
       {needsPassword && (
-        <label>
-          {mode === "reset" ? "Nouveau mot de passe" : "Mot de passe"}
-          <input
-            name="password"
-            type="password"
-            autoComplete={mode === "login" ? "current-password" : "new-password"}
-            minLength={mode === "register" || mode === "reset" ? 8 : undefined}
-            required
-          />
-        </label>
+        <PasswordField
+          label={mode === "reset" ? "Nouveau mot de passe" : "Mot de passe"}
+          name="password"
+          autoComplete={mode === "login" ? "current-password" : "new-password"}
+          minLength={mode === "register" || mode === "reset" ? 8 : undefined}
+        />
+      )}
+      {(mode === "register" || mode === "reset") && (
+        <PasswordField label="Confirmer le mot de passe" name="password2" autoComplete="new-password" minLength={8} />
       )}
       {mode === "reset" && <input type="hidden" name="token" value={token} />}
       {mode === "register" && (

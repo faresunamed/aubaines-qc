@@ -38,6 +38,7 @@ export async function register(_: FormState, form: FormData): Promise<FormState>
   if (name.length < 2) return { error: "Entrez votre prénom." };
   if (!EMAIL_RE.test(email)) return { error: "Courriel invalide." };
   if (password.length < 8) return { error: "Le mot de passe doit contenir au moins 8 caractères." };
+  if (password !== String(form.get("password2") ?? "")) return { error: "Les deux mots de passe ne sont pas identiques." };
   if (!accepted) return { error: "Vous devez accepter les conditions d'utilisation et la politique de confidentialité." };
   if (!(await rateLimit(`register:${await clientIp()}`, 5, 3600))) return { error: TOO_MANY };
 
@@ -141,6 +142,7 @@ export async function resetPassword(_: FormState, form: FormData): Promise<FormS
   const token = String(form.get("token") ?? "");
   const password = String(form.get("password") ?? "");
   if (password.length < 8) return { error: "Le mot de passe doit contenir au moins 8 caractères." };
+  if (password !== String(form.get("password2") ?? "")) return { error: "Les deux mots de passe ne sont pas identiques." };
 
   const userId = await consumeToken(token, "reset");
   if (!userId) return { error: "Ce lien est invalide ou expiré. Demandez-en un nouveau." };

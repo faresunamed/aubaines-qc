@@ -17,3 +17,4 @@ await visit("/", 2);
 console.log(`${seen.size} pages parcourues, ${bad.length} à 0`);
 bad.slice(0, 15).forEach((b) => console.log("  0 résultat :", b));
 process.exit(bad.length ? 1 : 0);
+export {};
