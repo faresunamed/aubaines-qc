@@ -13,6 +13,7 @@ Stack : Next.js 15 (App Router) · Postgres · sessions JWT en cookie httpOnly �
 | Commerçants | Demande d'accès → approbation par un admin → publication/modification/suppression d'offres, **import CSV** (500 lignes), classification automatique |
 | Administration | Statistiques, approbation/refus des commerçants, modération des offres |
 | Agent IA | Extraction quotidienne des offres depuis des pages de circulaires **autorisées** → file « à réviser » dans `/admin` → publication manuelle |
+| Liste de courses | Liste d'articles (saisie libre ou bouton « + Liste » sur une offre), code postal → zone, mode de déplacement ; quatre plans comparés (un seul magasin, le moins cher, le plus rapide, équilibré) avec **prix estimé**, **durée** (trajet + magasinage) et lien d'itinéraire Google Maps |
 | Croissance | Pages publiques par commerce et par catégorie, `sitemap.xml`, `robots.txt`, balises sociales, application installable (manifest + icônes) |
 | Légal | Ébauches des conditions d'utilisation et de la politique de confidentialité (Loi 25) — **à faire valider** |
 
@@ -100,6 +101,15 @@ Principe : une tâche planifiée lit des pages de circulaires, Claude en extrait
 4. Planification : le workflow `.github/workflows/daily-collect.yml` tourne chaque jour. Dans GitHub → Settings → Secrets, ajoutez `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `ANTHROPIC_API_KEY` et `AI_SOURCES_JSON` (le contenu du fichier de sources).
 
 Limites : les pages qui s'affichent uniquement par JavaScript (circulaires interactives) ressortent vides ; un appel à l'API Anthropic est facturé à l'usage ; l'extraction reste une aide, d'où la revue humaine. Test sans clé : `npm run test:extract`.
+
+## Liste de courses
+
+Page `/courses` (connecté). Le moteur (`lib/shopping.ts`, testé par `npm test`) apparie chaque article aux offres publiées de la zone, puis compare des combinaisons de 1 à 4 commerces :
+- **prix** : somme des offres les moins chères retenues (les articles sans offre ne sont pas comptés et sont listés) ;
+- **durée** : trajet (distances moyennes par zone × vitesse du mode) + magasinage (8 min par commerce + 1,5 min par article) — des **estimations**, pas un calcul d'itinéraire réel ;
+- **itinéraire** : lien Google Maps (départ = code postal, étapes = noms des commerces).
+Les zones se déduisent du code postal (`lib/zones.ts`) ; `promotions.zone_slug` permet des prix propres à une zone (NULL = partout). La collecte automatique de prix par zone n'est pas encore faite : elle demande de choisir le magasin sur le site de chaque chaîne.
+Pour la production Supabase : relancer `db/schema.sql` (nouvelles tables `shopping_items`, `shopping_prefs`).
 
 ## Classification
 

@@ -20,6 +20,7 @@ export type Promo = {
   category_name: string;
   category_slug: string;
   is_favorite: boolean;
+  in_list?: boolean;
 };
 
 export type Filters = {
@@ -64,11 +65,13 @@ export async function searchPromotions(f: Filters, userId?: number) {
             to_char(p.valid_to,'YYYY-MM-DD') AS valid_to, p.is_demo,
             e.name AS establishment_name, e.slug AS establishment_slug, e.color AS establishment_color,
             c.name AS category_name, c.slug AS category_slug,
-            (f.user_id IS NOT NULL) AS is_favorite
+            (f.user_id IS NOT NULL) AS is_favorite,
+            (si.id IS NOT NULL) AS in_list
      FROM promotions p
      JOIN establishments e ON e.id = p.establishment_id
      JOIN categories c ON c.id = p.category_id
      LEFT JOIN favorites f ON f.promotion_id = p.id AND f.user_id = ${uid}
+     LEFT JOIN shopping_items si ON si.promotion_id = p.id AND si.user_id = ${uid}
      WHERE ${whereSql}
      ORDER BY ${order}
      LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}`,

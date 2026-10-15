@@ -1,4 +1,5 @@
 import { toggleFavorite } from "@/app/actions";
+import { toggleListItem } from "@/app/courses/actions";
 import { productIcon } from "@/lib/product-icons";
 import type { Promo } from "@/lib/promotions";
 
@@ -19,6 +20,7 @@ function endLabel(validTo: string | null) {
 
 export default function PromoCard({ p }: { p: Promo }) {
   const fav = toggleFavorite.bind(null, p.id);
+  const list = toggleListItem.bind(null, p.id);
   const end = endLabel(p.valid_to);
   return (
     <article className="card">
@@ -43,15 +45,22 @@ export default function PromoCard({ p }: { p: Promo }) {
       </div>
       <div className="card-foot">
         <span className="end">{end}</span>
-        <form action={fav}>
-          <button
-            className={`fav ${p.is_favorite ? "on" : ""}`}
-            aria-label={p.is_favorite ? "Retirer des favoris" : "Ajouter aux favoris"}
-            title={p.is_favorite ? "Retirer des favoris" : "Ajouter aux favoris"}
-          >
-            {p.is_favorite ? "★" : "☆"}
-          </button>
-        </form>
+        <div className="card-actions">
+          <form action={list}>
+            <button className={`listbtn ${p.in_list ? "on" : ""}`} title={p.in_list ? "Retirer de ma liste de courses" : "Ajouter à ma liste de courses"}>
+              {p.in_list ? "✓ Dans ma liste" : "+ Liste"}
+            </button>
+          </form>
+          <form action={fav}>
+            <button
+              className={`fav ${p.is_favorite ? "on" : ""}`}
+              aria-label={p.is_favorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+              title={p.is_favorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+            >
+              {p.is_favorite ? "★" : "☆"}
+            </button>
+          </form>
+        </div>
       </div>
     </article>
   );

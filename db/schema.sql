@@ -153,6 +153,31 @@ INSERT INTO categories (slug, name, group_name, sort) VALUES
   ('autre', 'Autres', 'Divers', 21)
 ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name, group_name = EXCLUDED.group_name, sort = EXCLUDED.sort;
 
+-- ===== Liste de courses =====
+-- Prix par zone : NULL = valable partout ; sinon slug de zone (voir lib/zones.ts).
+ALTER TABLE promotions ADD COLUMN IF NOT EXISTS zone_slug TEXT;
+CREATE INDEX IF NOT EXISTS promotions_zone_idx ON promotions (zone_slug);
+
+CREATE TABLE IF NOT EXISTS shopping_items (
+  id           SERIAL PRIMARY KEY,
+  user_id      INT  NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  text         TEXT NOT NULL,
+  qty          INT  NOT NULL DEFAULT 1 CHECK (qty BETWEEN 1 AND 99),
+  promotion_id INT  REFERENCES promotions(id) ON DELETE SET NULL,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS shopping_items_user_idx ON shopping_items (user_id);
+
+CREATE TABLE IF NOT EXISTS shopping_prefs (
+  user_id     INT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  postal_code TEXT,
+  zone_slug   TEXT,
+  mode        TEXT NOT NULL DEFAULT 'voiture',
+  multi_store BOOLEAN NOT NULL DEFAULT TRUE,
+  max_stops   INT NOT NULL DEFAULT 3 CHECK (max_stops BETWEEN 1 AND 4),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- ===== Sécurité (important sur Supabase) =====
 -- Supabase expose les tables du schéma « public » via une API REST publique
 -- (clé « anon »). Le site se connecte directement à Postgres, donc on ferme
@@ -168,6 +193,8 @@ ALTER TABLE rate_limits       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE email_outbox      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE merchant_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE alerts            ENABLE ROW LEVEL SECURITY;
+ALTER TABLE shopping_items    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE shopping_prefs    ENABLE ROW LEVEL SECURITY;
 
 DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN

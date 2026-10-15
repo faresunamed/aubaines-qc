@@ -70,7 +70,8 @@ check("page négative : traitée comme la page 1", !(neg instanceof Error) && ne
 
 // Offres expirées / en attente invisibles
 const exp = await query<{ n: number }>("SELECT count(*)::int AS n FROM promotions WHERE valid_to < CURRENT_DATE");
-const listed = (await searchPromotions({})).rows.filter((r) => r.valid_to && r.valid_to < new Date().toISOString().slice(0, 10));
+const [{ d: today }] = await query<{ d: string }>("SELECT to_char(CURRENT_DATE, 'YYYY-MM-DD') AS d");
+const listed = (await searchPromotions({})).rows.filter((r) => r.valid_to && r.valid_to < today);
 check(`offres expirées (${exp[0].n}) jamais affichées`, listed.length === 0);
 
 // Pages HTTP

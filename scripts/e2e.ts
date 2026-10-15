@@ -231,6 +231,45 @@ for (let i = 0; i < 12; i++) {
 check("connexions répétées limitées", blocked);
 
 
+// ---------- liste de courses ----------
+r = await new Client().get("/courses");
+check("liste de courses : réservée aux connectés", r.status === 307 && r.location.includes("/connexion"), `${r.status} ${r.location}`);
+r = await c.get("/courses");
+check("liste de courses : page affichée (liste vide)", r.status === 200 && r.text.includes("Ma liste de courses") && r.text.includes("Votre liste est vide"));
+r = await c.submit("/courses", 'name="text"', { text: "poulet", qty: "2" });
+r = await c.submit("/courses", 'name="text"', { text: "lait", qty: "1" });
+const nItems = (await query<{ n: number }>("SELECT count(*)::int AS n FROM shopping_items si JOIN users u ON u.id = si.user_id WHERE u.email = $1", [C]))[0].n;
+check("liste de courses : articles ajoutés", nItems === 2, String(nItems));
+r = await c.submit("/courses", 'name="text"', { text: "x", qty: "1" });
+check("liste de courses : article trop court refusé", r.status === 303 && r.location.includes("erreur=article"), `${r.status} ${r.location}`);
+r = await c.submit("/courses", 'name="postal"', { postal: "K1A 0B1", zone: "montreal", mode: "voiture", max: "3", multi: "on" });
+check("liste de courses : code postal hors Québec refusé", r.location.includes("erreur=postal"), r.location);
+r = await c.get("/courses");
+check("liste de courses : sans code postal, invitation à le saisir", r.text.includes("Entrez votre code postal"));
+r = await c.submit("/courses", 'name="postal"', { postal: "h2x1a1", zone: "montreal", mode: "voiture", max: "3", multi: "on" });
+check("liste de courses : préférences enregistrées (code postal normalisé)", (await query("SELECT 1 FROM shopping_prefs p JOIN users u ON u.id=p.user_id WHERE u.email=$1 AND p.postal_code='H2X 1A1' AND p.zone_slug='montreal'", [C])).length === 1);
+r = await c.submit("/courses", 'name="postal"', { postal: "G1R 2B2", zone: "auto", mode: "marche", max: "2" });
+check("zone « automatique » déduite du code postal (G1 → Québec), multi-commerces décoché", (await query("SELECT 1 FROM shopping_prefs p JOIN users u ON u.id=p.user_id WHERE u.email=$1 AND p.zone_slug='quebec' AND p.mode='marche' AND p.multi_store = FALSE", [C])).length === 1);
+r = await c.submit("/courses", 'name="postal"', { postal: "h2x1a1", zone: "auto", mode: "voiture", max: "3", multi: "on" });
+check("zone « automatique » : H2X → Montréal", (await query("SELECT 1 FROM shopping_prefs p JOIN users u ON u.id=p.user_id WHERE u.email=$1 AND p.zone_slug='montreal'", [C])).length === 1);
+r = await c.get("/courses");
+check("liste de courses : itinéraires affichés avec total, durée et lien", r.status === 200 && r.text.includes("Le moins cher") && r.text.includes("estimé") && r.text.includes("google.com/maps/dir") && /\d+ min|\d h \d\d/.test(r.text), r.text.replace(/<[^>]+>/g, " ").slice(0, 400));
+check("liste de courses : au moins un plan (les plans identiques sont fusionnés)", (r.text.match(/class="plan"/g) ?? []).length >= 1);
+r = await c.get("/?q=poulet");
+r = await c.submit("/?q=poulet", 'class="listbtn', {});
+const fromCard = await query("SELECT 1 FROM shopping_items si JOIN users u ON u.id=si.user_id WHERE u.email=$1 AND si.promotion_id IS NOT NULL", [C]);
+check("bouton « + Liste » sur une carte", fromCard.length === 1, `${r.status} ${r.location}`);
+r = await c.get("/?q=poulet");
+check("carte : « Dans ma liste » après ajout", r.text.includes("Dans ma liste"));
+const [adm] = await query<{ id: number }>("SELECT id FROM users WHERE email = $1", [C]);
+for (let i = 0; i < 40; i++) await query("INSERT INTO shopping_items (user_id, text) VALUES ($1,$2) ON CONFLICT DO NOTHING", [adm.id, `rempli ${i}`]);
+r = await c.submit("/courses", 'name="text"', { text: "encore un", qty: "1" });
+check("liste de courses : limite d'articles", r.location.includes("erreur=limite"), r.location);
+r = await c.submit("/courses", 'name="id"', {});
+await query("DELETE FROM shopping_items WHERE user_id = $1", [adm.id]);
+const items0 = await query("SELECT 1 FROM shopping_items WHERE user_id = $1", [adm.id]);
+check("liste de courses : nettoyage", items0.length === 0);
+
 // ---------- offres extraites par IA : file de révision ----------
 await ensureCategories();
 const aiCollector = (titles: string[]) => ({

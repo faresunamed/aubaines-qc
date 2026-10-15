@@ -34,6 +34,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               {user ? (
                 <>
                   <Link href="/favoris">Favoris</Link>
+                  <Link href="/courses">Ma liste</Link>
                   <Link href="/alertes">Alertes</Link>
                   {(user.role === "merchant" || user.role === "admin") && <Link href="/commercant/offres">Mes offres</Link>}
                   {user.role === "admin" && <Link href="/admin">Admin</Link>}
