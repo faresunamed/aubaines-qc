@@ -46,8 +46,11 @@ export async function searchPromotions(f: Filters, userId?: number) {
   const add = (v: unknown) => (params.push(v), `$${params.length}`);
 
   if (f.q) {
-    for (const word of normalize(f.q).split(" ").filter(Boolean)) {
-      where.push(`p.search_text ILIKE ${add(`%${word}%`)}`);
+    for (const raw of normalize(f.q).split(" ").filter(Boolean)) {
+      // « viandes » trouve aussi « viande » ; un mot de catégorie (« viandes », « boissons ») ratisse toute la catégorie
+      const word = raw.length > 3 ? raw.replace(/(s|x)$/, "") : raw;
+      const ph = add(`%${word}%`);
+      where.push(`(p.search_text ILIKE ${ph} OR c.slug ILIKE ${ph})`);
     }
   }
   if (f.categorie) where.push(`c.slug = ${add(f.categorie)}`);

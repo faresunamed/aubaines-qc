@@ -8,10 +8,18 @@ export type Prefs = {
 export const MAX_ITEMS = 40;
 
 export async function getPrefs(userId: number): Promise<Prefs> {
-  const [p] = await query<Prefs>(
-    "SELECT postal_code, zone_slug, mode, multi_store, max_stops, address, lat, lng, geo_precise FROM shopping_prefs WHERE user_id = $1", [userId]);
-  if (!p) return { postal_code: null, zone_slug: null, mode: "voiture", multi_store: true, max_stops: 3, address: null, lat: null, lng: null, geo_precise: false };
-  return { ...p, lat: p.lat == null ? null : Number(p.lat), lng: p.lng == null ? null : Number(p.lng) };
+  const none: Prefs = { postal_code: null, zone_slug: null, mode: "voiture", multi_store: true, max_stops: 3, address: null, lat: null, lng: null, geo_precise: false };
+  let p: any;
+  try {
+    [p] = await query<any>(
+      "SELECT postal_code, zone_slug, mode, multi_store, max_stops, address, lat, lng, geo_precise FROM shopping_prefs WHERE user_id = $1", [userId]);
+  } catch {
+    // Base pas encore mise à jour (colonnes d'adresse absentes) : on lit les anciennes colonnes
+    [p] = await query<any>(
+      "SELECT postal_code, zone_slug, mode, multi_store, max_stops FROM shopping_prefs WHERE user_id = $1", [userId]);
+  }
+  if (!p) return none;
+  return { ...none, ...p, lat: p.lat == null ? null : Number(p.lat), lng: p.lng == null ? null : Number(p.lng), geo_precise: !!p.geo_precise };
 }
 
 export async function getItems(userId: number): Promise<ListItem[]> {

@@ -54,14 +54,25 @@ export async function savePrefs(form: FormData): Promise<void> {
   const mode = MODES.some((m) => m.value === form.get("mode")) ? String(form.get("mode")) : "voiture";
   const multi = form.get("multi") === "on";
   const maxStops = Math.min(4, Math.max(1, Math.floor(Number(form.get("max")) || 3)));
-  await query(
-    `INSERT INTO shopping_prefs (user_id, postal_code, zone_slug, mode, multi_store, max_stops, address, lat, lng, geo_precise, updated_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10, now())
-     ON CONFLICT (user_id) DO UPDATE SET postal_code = EXCLUDED.postal_code, zone_slug = EXCLUDED.zone_slug,
-       mode = EXCLUDED.mode, multi_store = EXCLUDED.multi_store, max_stops = EXCLUDED.max_stops,
-       address = EXCLUDED.address, lat = EXCLUDED.lat, lng = EXCLUDED.lng, geo_precise = EXCLUDED.geo_precise, updated_at = now()`,
-    [user.id, postal, zone, mode, multi, maxStops, address, lat, lng, precise],
-  );
+  try {
+    await query(
+      `INSERT INTO shopping_prefs (user_id, postal_code, zone_slug, mode, multi_store, max_stops, address, lat, lng, geo_precise, updated_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10, now())
+       ON CONFLICT (user_id) DO UPDATE SET postal_code = EXCLUDED.postal_code, zone_slug = EXCLUDED.zone_slug,
+         mode = EXCLUDED.mode, multi_store = EXCLUDED.multi_store, max_stops = EXCLUDED.max_stops,
+         address = EXCLUDED.address, lat = EXCLUDED.lat, lng = EXCLUDED.lng, geo_precise = EXCLUDED.geo_precise, updated_at = now()`,
+      [user.id, postal, zone, mode, multi, maxStops, address, lat, lng, precise],
+    );
+  } catch {
+    // Base pas encore mise à jour : enregistrement sans l'adresse
+    await query(
+      `INSERT INTO shopping_prefs (user_id, postal_code, zone_slug, mode, multi_store, max_stops, updated_at)
+       VALUES ($1,$2,$3,$4,$5,$6, now())
+       ON CONFLICT (user_id) DO UPDATE SET postal_code = EXCLUDED.postal_code, zone_slug = EXCLUDED.zone_slug,
+         mode = EXCLUDED.mode, multi_store = EXCLUDED.multi_store, max_stops = EXCLUDED.max_stops, updated_at = now()`,
+      [user.id, postal, zone, mode, multi, maxStops],
+    );
+  }
   revalidatePath("/courses");
   redirect("/courses");
 }

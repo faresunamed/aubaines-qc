@@ -22,6 +22,11 @@ check("catégorie : total = compteur de la facette", byCat.total === cat.n, `${b
 
 // Établissement
 const est = facets.establishments.find((e) => e.n > 0)!;
+const word = cat.slug.split("-")[0]; // ex. « viandes » pour viandes-poissons
+const byWord = await searchPromotions({ q: word });
+check(`recherche « ${word} » : trouve aussi toute la catégorie`, byWord.rows.some((r) => r.category_slug === cat.slug), `${byWord.total}`);
+const plural = await searchPromotions({ q: word.replace(/s$/, "") + "s" });
+check("recherche au pluriel/singulier équivalente", plural.total >= byWord.total || word.length <= 3, `${plural.total} vs ${byWord.total}`);
 const byEst = await searchPromotions({ etablissement: est.slug });
 check(`établissement « ${est.slug} » : tous les résultats de ce commerce`, byEst.rows.length > 0 && byEst.rows.every((r) => r.establishment_slug === est.slug));
 check("établissement : total = compteur de la facette", byEst.total === est.n, `${byEst.total} vs ${est.n}`);
